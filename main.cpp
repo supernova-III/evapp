@@ -16,6 +16,20 @@ TEST(Parser, Parser) {
       }
     )""");
   auto ast = parser.run();
+  const auto *expr = ast.statements.head;
+  while (expr) {
+    Statement *statement = expr->statement;
+    if (statement->type == Statement::Type::ExpressionStatement) {
+      print(statement->expression_statement);
+      expr = expr->next;
+      if (expr &&
+          expr->statement->type == Statement::Type::ExpressionStatement) {
+        printf(",");
+      }
+    } else if (statement->type == Statement::Type::BlockStatement) {
+      expr = expr->statement->block_statement.statement_list.head;
+    }
+  }
 }
 
 TEST(Tokenizer, NumberTests) {

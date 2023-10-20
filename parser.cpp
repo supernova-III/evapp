@@ -67,3 +67,18 @@ const AST &Parser::run() {
   ast_.statements = parseStatementList();
   return ast_;
 }
+
+void print(const ExpressionStatement &expression_statement) {
+  printf(R"({"type":"ExpressionStatement","expression":{"type":)");
+  switch (expression_statement.type) {
+  case ExpressionStatement::Type::StringLiteral: {
+    printf(R"("StringLiteral",)");
+    printf(R"("value":"%s")", expression_statement.string_literal.string);
+  } break;
+  case ExpressionStatement::Type::NumericLiteral: {
+    printf(R"("NumericLiteral",)");
+    printf(R"("value":%f)", expression_statement.numeric_literal.number);
+  } break;
+  }
+  printf("}}");
+}
