@@ -79,3 +79,6 @@ public:
 void print(const AST &ast);
 
 void print(const ExpressionStatement &expression_statement);
+void print(const StatementList &statement_list);
+void print(const BlockStatement &block_statement);
+void print(const Statement &statement);

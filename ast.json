@@ -1,0 +1,67 @@
+{
+  "type": "StatementList",
+  "statement_list": [
+    {
+      "type": "Statement",
+      "statement": {
+        "type": "BlockStatement",
+        "statement_list": {
+          "type": "StatementList",
+          "statement_list": [
+            {
+              "type": "Statement",
+              "statement": {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "NumericLiteral",
+                  "value": 123.000000
+                }
+              }
+            },
+            {
+              "type": "Statement",
+              "statement": {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "StringLiteral",
+                  "value": "asd"
+                }
+              }
+            },
+            {
+              "type": "Statement",
+              "statement": {
+                "type": "BlockStatement",
+                "statement_list": {
+                  "type": "StatementList",
+                  "statement_list": [
+                    {
+                      "type": "Statement",
+                      "statement": {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "NumericLiteral",
+                          "value": 124.000000
+                        }
+                      }
+                    },
+                    {
+                      "type": "Statement",
+                      "statement": {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                          "type": "StringLiteral",
+                          "value": "asv"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

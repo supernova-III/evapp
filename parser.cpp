@@ -82,3 +82,39 @@ void print(const ExpressionStatement &expression_statement) {
   }
   printf("}}");
 }
+
+void print(const BlockStatement &block_statement) {
+  printf(R"({"type":"BlockStatement","statement_list":)");
+  print(block_statement.statement_list);
+  printf("}");
+}
+
+void print(const Statement &statement) {
+  printf(R"({"type":"Statement","statement":)");
+  switch (statement.type) {
+  case Statement::Type::BlockStatement: {
+    print(statement.block_statement);
+  } break;
+  case Statement::Type::ExpressionStatement: {
+    print(statement.expression_statement);
+  } break;
+  }
+  printf("}");
+}
+
+void print(const StatementList &statement_list) {
+  printf(R"({"type":"StatementList","statement_list":[)");
+  const auto *ptr = statement_list.head;
+  while (ptr != nullptr) {
+    if (ptr->statement) {
+      print(*ptr->statement);
+    }
+    if (ptr->next) {
+      printf(",");
+    }
+    ptr = ptr->next;
+  }
+  printf("]}");
+}
+
+void print(const AST &ast) { print(ast.statements); }
