@@ -3,3 +3,4 @@ bin/*
 .cache/*
 .vs/*
 *.sln
+test_programs/*.json

@@ -41,7 +41,12 @@ int main(int argc, char **argv) {
   auto parser = Parser(content);
   auto ast = parser.run();
   const auto *expr = ast.statements.head;
-  print(ast);
+  FILE *out = fopen("blocks_literals.json", "w+");
+  if (!out) {
+    throw std::runtime_error("Cannot open the file");
+  }
+  print(ast, out);
+  fclose(out);
   testing::InitGoogleTest();
   const auto res = RUN_ALL_TESTS();
   return res;

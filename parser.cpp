@@ -69,62 +69,63 @@ const AST &Parser::run() {
   return ast_;
 }
 
-void print(const ExpressionStatement &expression_statement) {
-  printf(R"({"type":"ExpressionStatement","expression":{"type":)");
+void print(const ExpressionStatement &expression_statement, FILE *file) {
+  fprintf(file, R"({"type":"ExpressionStatement","expression":{"type":)");
   switch (expression_statement.type) {
   case ExpressionStatement::Type::StringLiteral: {
-    printf(R"("StringLiteral","source_pos":"<%llu,%llu>", "value":"%s")",
-           expression_statement.string_literal.pos.line,
-           expression_statement.string_literal.pos.col,
-           expression_statement.string_literal.string);
+    fprintf(file, R"("StringLiteral","source_pos":"<%llu,%llu>", "value":"%s")",
+            expression_statement.string_literal.pos.line,
+            expression_statement.string_literal.pos.col,
+            expression_statement.string_literal.string);
   } break;
   case ExpressionStatement::Type::NumericLiteral: {
-    printf(R"("NumericLiteral","source_pos":"<%llu,%llu>","value":%f)",
-           expression_statement.numeric_literal.pos.line,
-           expression_statement.numeric_literal.pos.col,
-           expression_statement.numeric_literal.number);
+    fprintf(file, R"("NumericLiteral","source_pos":"<%llu,%llu>","value":%f)",
+            expression_statement.numeric_literal.pos.line,
+            expression_statement.numeric_literal.pos.col,
+            expression_statement.numeric_literal.number);
   } break;
   }
-  printf("}}");
+  fprintf(file, "}}");
 }
 
-void print(const BlockStatement &block_statement) {
-  printf(
+void print(const BlockStatement &block_statement, FILE *file) {
+  fprintf(
+      file,
       R"({"type":"BlockStatement","source_pos":"<%llu,%llu>","statement_list":)",
       block_statement.left_brace.pos.line, block_statement.left_brace.pos.col);
-  print(block_statement.statement_list);
-  printf("}");
+  print(block_statement.statement_list, file);
+  fprintf(file, "}");
 }
 
-void print(const Statement &statement) {
-  printf(R"({"type":"Statement","statement":)");
+void print(const Statement &statement, FILE *file) {
+  fprintf(file, R"({"type":"Statement","statement":)");
   switch (statement.type) {
   case Statement::Type::BlockStatement: {
-    print(statement.block_statement);
+    print(statement.block_statement, file);
   } break;
   case Statement::Type::ExpressionStatement: {
-    print(statement.expression_statement);
+    print(statement.expression_statement, file);
   } break;
   }
-  printf("}");
+  fprintf(file, "}");
 }
 
-void print(const StatementList &statement_list) {
-  printf(R"({"type":"StatementList","statement_list":[)");
+void print(const StatementList &statement_list, FILE *file) {
+  fprintf(file, R"({"type":"StatementList","statement_list":[)");
   const auto *ptr = statement_list.head;
   while (ptr != nullptr) {
     if (ptr->statement) {
-      print(*ptr->statement);
+      print(*ptr->statement, file);
     }
     if (ptr->next) {
-      printf(",");
+      fprintf(file, ",");
     }
     ptr = ptr->next;
   }
-  printf("]}");
+  fprintf(file, "]}");
 }
 
-void print(const AST &ast) {
-  print(ast.statements);
-  printf("\n");
+void print(const AST &ast, FILE *file) {
+  print(ast.statements, file);
+  fprintf(file, "\n");
 }

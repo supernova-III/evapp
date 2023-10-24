@@ -56,9 +56,9 @@ public:
   const AST &run();
 };
 
-void print(const AST &ast);
+void print(const AST &ast, FILE *file);
 
-void print(const ExpressionStatement &expression_statement);
-void print(const StatementList &statement_list);
-void print(const BlockStatement &block_statement);
-void print(const Statement &statement);
+void print(const ExpressionStatement &expression_statement, FILE *file);
+void print(const StatementList &statement_list, FILE *file);
+void print(const BlockStatement &block_statement, FILE *file);
+void print(const Statement &statement, FILE *file);
