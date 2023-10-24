@@ -21,7 +21,7 @@ struct Token {
     double number;
     const char *string;
   };
-  SourcePos pos;
+  SourcePos pos = {1, 1};
 
   bool operator==(const Token &other) const noexcept {
     if (type != other.type) {
@@ -46,6 +46,7 @@ class TokenIterator {
   size_t input_length_;
   size_t cursor_ = 0;
   Token current_token_ = {};
+  SourcePos current_pos_ = {1, 1};
 
   bool isInput() const noexcept { return cursor_ < input_length_; }
 
