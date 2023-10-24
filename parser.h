@@ -3,26 +3,6 @@
 
 struct Statement;
 
-// Example
-// {
-//   type: StatementList,
-//   list: [
-//     {
-//       type: ExpressionStatement,
-//       expression: {
-//         type: StringLiteral,
-//         value: asd
-//       }
-//     },
-//     {
-//       type: ExpressionStatement,
-//       expression: {
-//         type: NumericLiteral,
-//         value: 12
-//       }
-//     },
-//   ]
-// }
 struct StatementList {
   struct ListNode {
     Statement *statement;
