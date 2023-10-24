@@ -36,6 +36,14 @@ char *readEntireFile(const char *path, size_t &s) {
 }
 
 int main(int argc, char **argv) {
+  StatementList lst = StatementList{}
+                          .addStatement(Statement::newStringLiteral("asd"))
+                          .addStatement(Statement::newNumericLiteral(10))
+                          .addStatement(Statement::newBlockStatement(
+                              {Statement::newStringLiteral("internal"),
+                               Statement::newStringLiteral("thing"),
+                               Statement::newNumericLiteral(10)},
+                              {3, 1}));
   size_t size = 0;
   const char *content = readEntireFile("binary_expressions.eva", size);
   auto parser = Parser(content);
