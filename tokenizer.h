@@ -14,7 +14,11 @@ struct Token {
     NumericLiteral,
     StringLiteral,
     LeftBrace,
-    RightBrace
+    RightBrace,
+    Plus,
+    Minus,
+    Multiply,
+    Divide
   } type;
 
   union {

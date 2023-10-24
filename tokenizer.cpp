@@ -41,6 +41,30 @@ const Token &TokenIterator::next() {
     repeat = false;
     char c = input_[cursor_];
     switch (c) {
+    case '+': {
+      current_token_.type = Token::Type::Plus;
+      current_token_.pos = current_pos_;
+      ++cursor_;
+      current_pos_.col += 1;
+    } break;
+    case '-': {
+      current_token_.type = Token::Type::Minus;
+      current_token_.pos = current_pos_;
+      ++cursor_;
+      current_pos_.col += 1;
+    } break;
+    case '*': {
+      current_token_.type = Token::Type::Multiply;
+      current_token_.pos = current_pos_;
+      ++cursor_;
+      current_pos_.col += 1;
+    } break;
+    case '/': {
+      current_token_.type = Token::Type::Divide;
+      current_token_.pos = current_pos_;
+      ++cursor_;
+      current_pos_.col += 1;
+    } break;
     case '{': {
       current_token_.type = Token::Type::LeftBrace;
       current_token_.pos = current_pos_;
@@ -88,9 +112,11 @@ const Token &TokenIterator::next() {
     case '\n': {
       current_pos_.col = 1;
       current_pos_.line += 1;
+      [[fallthrough]];
     }
     case '\r': {
       current_pos_.col -= 1;
+      [[fallthrough]];
     }
     case ' ':
     case '\t': {

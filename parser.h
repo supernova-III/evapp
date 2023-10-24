@@ -12,7 +12,7 @@ struct StatementList {
 };
 
 struct ExpressionStatement {
-  enum struct Type { StringLiteral, NumericLiteral } type;
+  enum struct Type { StringLiteral, NumericLiteral, BinaryExpression } type;
   union {
     Token string_literal;
     Token numeric_literal;
