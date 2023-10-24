@@ -35,13 +35,16 @@ char *readEntireFile(const char *path, size_t &s) {
   return res;
 }
 
-TEST(Parser, Parser) {
+int main(int argc, char **argv) {
   size_t size = 0;
-  const char *content = readEntireFile("code.eva", size);
+  const char *content = readEntireFile("blocks_literals.eva", size);
   auto parser = Parser(content);
   auto ast = parser.run();
   const auto *expr = ast.statements.head;
   print(ast);
+  testing::InitGoogleTest();
+  const auto res = RUN_ALL_TESTS();
+  return res;
 }
 
 TEST(Tokenizer, NumberTests) {

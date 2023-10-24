@@ -124,4 +124,7 @@ void print(const StatementList &statement_list) {
   printf("]}");
 }
 
-void print(const AST &ast) { print(ast.statements); }
+void print(const AST &ast) {
+  print(ast.statements);
+  printf("\n");
+}
