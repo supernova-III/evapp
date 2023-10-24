@@ -75,6 +75,7 @@ const Token &TokenIterator::next() {
       current_token_.string = string;
       ++cursor_;
     } break;
+    case '\r':
     case '\n':
     case ' ':
     case '\t': {
@@ -84,9 +85,6 @@ const Token &TokenIterator::next() {
     default:
       break;
     }
-  }
-  if (!isInput()) {
-    current_token_.type = Token::Type::End;
   }
   return current_token_;
 }
