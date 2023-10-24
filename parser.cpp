@@ -73,28 +73,25 @@ void print(const ExpressionStatement &expression_statement) {
   printf(R"({"type":"ExpressionStatement","expression":{"type":)");
   switch (expression_statement.type) {
   case ExpressionStatement::Type::StringLiteral: {
-    printf(R"("StringLiteral",)");
-    printf("\"source_pos\":\"<%llu,%llu>\",",
+    printf(R"("StringLiteral","source_pos":"<%llu,%llu>", "value":"%s")",
            expression_statement.string_literal.pos.line,
-           expression_statement.string_literal.pos.col);
-    printf(R"("value":"%s")", expression_statement.string_literal.string);
+           expression_statement.string_literal.pos.col,
+           expression_statement.string_literal.string);
   } break;
   case ExpressionStatement::Type::NumericLiteral: {
-    printf(R"("NumericLiteral",)");
-    printf("\"source_pos\":\"<%llu,%llu>\",",
+    printf(R"("NumericLiteral","source_pos":"<%llu,%llu>","value":%f)",
            expression_statement.numeric_literal.pos.line,
-           expression_statement.numeric_literal.pos.col);
-    printf(R"("value":%f)", expression_statement.numeric_literal.number);
+           expression_statement.numeric_literal.pos.col,
+           expression_statement.numeric_literal.number);
   } break;
   }
   printf("}}");
 }
 
 void print(const BlockStatement &block_statement) {
-  printf(R"({"type":"BlockStatement",)");
-  printf("\"source_pos\":\"<%llu,%llu>\",", block_statement.left_brace.pos.line,
-         block_statement.left_brace.pos.col);
-  printf(R"("statement_list":)");
+  printf(
+      R"({"type":"BlockStatement","source_pos":"<%llu,%llu>","statement_list":)",
+      block_statement.left_brace.pos.line, block_statement.left_brace.pos.col);
   print(block_statement.statement_list);
   printf("}");
 }
