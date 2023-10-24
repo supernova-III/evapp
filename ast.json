@@ -5,6 +5,7 @@
       "type": "Statement",
       "statement": {
         "type": "BlockStatement",
+        "source_pos": "<1,1>",
         "statement_list": {
           "type": "StatementList",
           "statement_list": [
@@ -13,8 +14,9 @@
               "statement": {
                 "type": "ExpressionStatement",
                 "expression": {
-                  "type": "NumericLiteral",
-                  "value": 123.000000
+                  "type": "StringLiteral",
+                  "source_pos": "<2,3>",
+                  "value": "asd"
                 }
               }
             },
@@ -23,8 +25,9 @@
               "statement": {
                 "type": "ExpressionStatement",
                 "expression": {
-                  "type": "StringLiteral",
-                  "value": "asd"
+                  "type": "NumericLiteral",
+                  "source_pos": "<3,3>",
+                  "value": 123.000000
                 }
               }
             },
@@ -32,6 +35,7 @@
               "type": "Statement",
               "statement": {
                 "type": "BlockStatement",
+                "source_pos": "<4,3>",
                 "statement_list": {
                   "type": "StatementList",
                   "statement_list": [
@@ -40,8 +44,9 @@
                       "statement": {
                         "type": "ExpressionStatement",
                         "expression": {
-                          "type": "NumericLiteral",
-                          "value": 124.000000
+                          "type": "StringLiteral",
+                          "source_pos": "<5,5>",
+                          "value": "string"
                         }
                       }
                     },
@@ -50,8 +55,9 @@
                       "statement": {
                         "type": "ExpressionStatement",
                         "expression": {
-                          "type": "StringLiteral",
-                          "value": "asv"
+                          "type": "NumericLiteral",
+                          "source_pos": "<6,5>",
+                          "value": 346.000000
                         }
                       }
                     }

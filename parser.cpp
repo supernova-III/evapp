@@ -32,10 +32,11 @@ Statement *Parser::parseStatement() {
     result->expression_statement.numeric_literal = parseNumericLiteral();
   } break;
   case Token::Type::LeftBrace: {
-    eatToken(Token::Type::LeftBrace);
+    const auto left_brace = eatToken(Token::Type::LeftBrace);
     result->type = Statement::Type::BlockStatement;
     result->block_statement.statement_list =
         parseStatementList(Token::Type::RightBrace);
+    result->block_statement.left_brace = left_brace;
     eatToken(Token::Type::RightBrace);
   } break;
   default:
@@ -73,10 +74,16 @@ void print(const ExpressionStatement &expression_statement) {
   switch (expression_statement.type) {
   case ExpressionStatement::Type::StringLiteral: {
     printf(R"("StringLiteral",)");
+    printf("\"source_pos\":\"<%llu,%llu>\",",
+           expression_statement.string_literal.pos.line,
+           expression_statement.string_literal.pos.col);
     printf(R"("value":"%s")", expression_statement.string_literal.string);
   } break;
   case ExpressionStatement::Type::NumericLiteral: {
     printf(R"("NumericLiteral",)");
+    printf("\"source_pos\":\"<%llu,%llu>\",",
+           expression_statement.numeric_literal.pos.line,
+           expression_statement.numeric_literal.pos.col);
     printf(R"("value":%f)", expression_statement.numeric_literal.number);
   } break;
   }
@@ -84,7 +91,10 @@ void print(const ExpressionStatement &expression_statement) {
 }
 
 void print(const BlockStatement &block_statement) {
-  printf(R"({"type":"BlockStatement","statement_list":)");
+  printf(R"({"type":"BlockStatement",)");
+  printf("\"source_pos\":\"<%llu,%llu>\",", block_statement.left_brace.pos.line,
+         block_statement.left_brace.pos.col);
+  printf(R"("statement_list":)");
   print(block_statement.statement_list);
   printf("}");
 }

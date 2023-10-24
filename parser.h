@@ -20,6 +20,7 @@ struct ExpressionStatement {
 };
 
 struct BlockStatement {
+  Token left_brace;
   StatementList statement_list;
 };
 
@@ -28,7 +29,6 @@ struct Statement {
 
   union {
     ExpressionStatement expression_statement;
-
     BlockStatement block_statement;
   };
 };
