@@ -36,14 +36,27 @@ char *readEntireFile(const char *path, size_t &s) {
 }
 
 int main(int argc, char **argv) {
-  StatementList lst = StatementList{}
-                          .addStatement(Statement::newStringLiteral("asd"))
-                          .addStatement(Statement::newNumericLiteral(10))
-                          .addStatement(Statement::newBlockStatement(
-                              {Statement::newStringLiteral("internal"),
-                               Statement::newStringLiteral("thing"),
-                               Statement::newNumericLiteral(10)},
-                              {3, 1}));
+  // clang-format off
+  BlockStatement {
+    .left_brace = {.type = Token::Type::LeftBrace, .pos = {1, 1}},
+    .statement_list = {
+      new Statement {
+        .type = Statement::Type::ExpressionStatement,
+        .expression_statement = {
+          .type = ExpressionStatement::Type::StringLiteral,
+          .string_literal = {.type = Token::Type::StringLiteral, .string = "asd"}
+        }
+      },
+      new Statement {
+        .type = Statement::Type::ExpressionStatement,
+        .expression_statement = {
+          .type = ExpressionStatement::Type::StringLiteral,
+          .string_literal = {.type = Token::Type::StringLiteral, .string = "asd"}
+        }
+      },
+    }
+  };
+  // clang-format on
   size_t size = 0;
   const char *content = readEntireFile("binary_expressions.eva", size);
   auto parser = Parser(content);

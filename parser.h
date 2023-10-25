@@ -13,6 +13,14 @@ struct StatementList {
   ListNode *head;
   ListNode *tail;
 
+  StatementList() = default;
+
+  StatementList(std::initializer_list<Statement *> statements) {
+    for (const auto &statement : statements) {
+      addStatement(statement);
+    }
+  }
+
   StatementList &addStatement(Statement *s) {
     ListNode *new_node = new ListNode{.statement = s, .next = nullptr};
     if (!head) {
@@ -34,18 +42,6 @@ struct ExpressionStatement {
     Token string_literal;
     Token numeric_literal;
   };
-
-  static ExpressionStatement stringLiteral(const char *string) {
-    return {.type = Type::StringLiteral,
-            .string_literal = {.type = Token::Type::StringLiteral,
-                               .string = string}};
-  }
-
-  static ExpressionStatement numericLiteral(double number) {
-    return {.type = Type::NumericLiteral,
-            .string_literal = {.type = Token::Type::NumericLiteral,
-                               .number = number}};
-  }
 };
 
 struct BlockStatement {
@@ -60,42 +56,6 @@ struct Statement {
     ExpressionStatement expression_statement;
     BlockStatement block_statement;
   };
-
-  static Statement stringLiteral(const char *string) {
-    return {.type = Type::ExpressionStatement,
-            .expression_statement = ExpressionStatement::stringLiteral(string)};
-  }
-  static Statement numericLiteral(double number) {
-    return {.type = Type::ExpressionStatement,
-            .expression_statement =
-                ExpressionStatement::numericLiteral(number)};
-  }
-
-  static Statement blockStatement(std::vector<Statement *> statements,
-                                  SourcePos pos) {
-    auto res = Statement{
-        .type = Type::BlockStatement,
-        .block_statement = {
-            .left_brace = {.type = Token::Type::LeftBrace, .pos = pos},
-        }};
-    for (const auto &stmt : statements) {
-      res.block_statement.statement_list.addStatement(stmt);
-    }
-    return res;
-  }
-
-  static Statement *newStringLiteral(const char *string) {
-    return new Statement(stringLiteral(string));
-  }
-
-  static Statement *newNumericLiteral(double number) {
-    return new Statement(numericLiteral(number));
-  }
-
-  static Statement *newBlockStatement(std::vector<Statement *> statements,
-                                      SourcePos pos) {
-    return new Statement(blockStatement(statements, pos));
-  }
 };
 
 struct AST {
