@@ -156,11 +156,11 @@ bool StatementList::operator!=(const StatementList &other) const noexcept {
 
 StatementList::StatementList(std::initializer_list<Statement *> statements) {
   for (const auto &statement : statements) {
-    addStatement(statement);
+    AddStatement(statement);
   }
 }
 
-StatementList &StatementList::addStatement(Statement *s) {
+StatementList &StatementList::AddStatement(Statement *s) {
   Node *new_node = new Node{.statement = s, .next = nullptr};
   if (!head) {
     head = new_node;

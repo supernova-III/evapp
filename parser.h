@@ -16,7 +16,7 @@ struct StatementList {
   bool operator!=(const StatementList &other) const noexcept;
 
   StatementList(std::initializer_list<Statement *> statements = {});
-  StatementList &addStatement(Statement *s);
+  StatementList &AddStatement(Statement *s);
 };
 
 struct ExpressionStatement {
