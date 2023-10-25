@@ -129,3 +129,98 @@ void print(const AST &ast, FILE *file) {
   print(ast.statements, file);
   fprintf(file, "\n");
 }
+
+bool StatementList::operator==(const StatementList &other) const noexcept {
+  Node *current = head;
+  Node *other_current = other.head;
+  while (current != nullptr && other_current != nullptr) {
+    if (*current->statement != *other_current->statement) {
+      return false;
+    }
+  }
+  if (current != nullptr || other_current != nullptr) {
+    return false;
+  }
+  return true;
+}
+
+bool StatementList::operator!=(const StatementList &other) const noexcept {
+  return !(*this == other);
+}
+
+StatementList::StatementList(std::initializer_list<Statement *> statements) {
+  for (const auto &statement : statements) {
+    addStatement(statement);
+  }
+}
+
+StatementList &StatementList::addStatement(Statement *s) {
+  Node *new_node = new Node{.statement = s, .next = nullptr};
+  if (!head) {
+    head = new_node;
+    head->next = tail;
+    tail = head;
+    tail->next = nullptr;
+  } else {
+    tail->next = new_node;
+    tail = new_node;
+  }
+  return *this;
+}
+
+bool ExpressionStatement::operator==(
+    const ExpressionStatement &other) const noexcept {
+  if (type != other.type) {
+    return false;
+  }
+  switch (type) {
+  case ExpressionStatement::Type::NumericLiteral: {
+    return numeric_literal == other.numeric_literal;
+  } break;
+  case ExpressionStatement::Type::StringLiteral: {
+    return string_literal == other.string_literal;
+  } break;
+  }
+  return false;
+}
+
+bool ExpressionStatement::operator!=(
+    const ExpressionStatement &other) const noexcept {
+  return !((*this) == other);
+}
+
+bool BlockStatement::operator==(const BlockStatement &other) const noexcept {
+  if (left_brace != other.left_brace) {
+    return false;
+  }
+  return statement_list == other.statement_list;
+}
+
+bool BlockStatement::operator!=(const BlockStatement &other) const noexcept {
+  return !(*this == other);
+}
+
+bool Statement::operator==(const Statement &other) const noexcept {
+  if (type != other.type) {
+    return false;
+  }
+  switch (type) {
+  case Statement::Type::ExpressionStatement:
+    return expression_statement == other.expression_statement;
+  case Statement::Type::BlockStatement:
+    return block_statement == other.block_statement;
+  }
+  return false;
+}
+
+bool Statement::operator!=(const Statement &other) const noexcept {
+  return !(*this == other);
+}
+
+bool AST::operator==(const AST &other) const noexcept {
+  return statements == other.statements;
+}
+
+bool AST::operator!=(const AST &other) const noexcept {
+  return statements != other.statements;
+}

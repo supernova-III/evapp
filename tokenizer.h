@@ -7,6 +7,12 @@ struct SourcePos {
   size_t line, col;
 
   operator bool() const noexcept { return line != 0 && col != 0; }
+  bool operator==(const SourcePos &other) const noexcept {
+    return line == other.line && col == other.col;
+  }
+  bool operator!=(const SourcePos &other) const noexcept {
+    return !(*this == other);
+  }
 };
 
 struct Token {
@@ -42,13 +48,15 @@ struct Token {
       return false;
     }
 
+    if (pos != other.pos) {
+      return false;
+    }
+
     switch (type) {
     case NumericLiteral:
       return number == other.number;
     case StringLiteral:
       return strcmp(string, other.string) == 0;
-    case Invalid:
-      return true;
     }
 
     return true;

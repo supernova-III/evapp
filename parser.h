@@ -4,7 +4,6 @@
 
 struct Statement;
 
-// TODO: replace with vector
 struct StatementList {
   struct Node {
     Statement *statement;
@@ -13,25 +12,11 @@ struct StatementList {
   Node *head = nullptr;
   Node *tail = nullptr;
 
-  StatementList(std::initializer_list<Statement *> statements = {}) {
-    for (const auto &statement : statements) {
-      addStatement(statement);
-    }
-  }
+  bool operator==(const StatementList &other) const noexcept;
+  bool operator!=(const StatementList &other) const noexcept;
 
-  StatementList &addStatement(Statement *s) {
-    Node *new_node = new Node{.statement = s, .next = nullptr};
-    if (!head) {
-      head = new_node;
-      head->next = tail;
-      tail = head;
-      tail->next = nullptr;
-    } else {
-      tail->next = new_node;
-      tail = new_node;
-    }
-    return *this;
-  }
+  StatementList(std::initializer_list<Statement *> statements = {});
+  StatementList &addStatement(Statement *s);
 };
 
 struct ExpressionStatement {
@@ -40,11 +25,15 @@ struct ExpressionStatement {
     Token string_literal;
     Token numeric_literal;
   };
+  bool operator==(const ExpressionStatement &other) const noexcept;
+  bool operator!=(const ExpressionStatement &other) const noexcept;
 };
 
 struct BlockStatement {
   Token left_brace;
   StatementList statement_list;
+  bool operator==(const BlockStatement &other) const noexcept;
+  bool operator!=(const BlockStatement &other) const noexcept;
 };
 
 struct Statement {
@@ -54,10 +43,15 @@ struct Statement {
     ExpressionStatement expression_statement;
     BlockStatement block_statement;
   };
+
+  bool operator==(const Statement &other) const noexcept;
+  bool operator!=(const Statement &other) const noexcept;
 };
 
 struct AST {
   StatementList statements;
+  bool operator==(const AST &other) const noexcept;
+  bool operator!=(const AST &other) const noexcept;
 };
 
 class Parser {
@@ -70,7 +64,6 @@ class Parser {
   Statement *parseStatement();
   Token parseStringLiteral();
   Token parseNumericLiteral();
-
   Token eatToken(Token::Type type);
 
 public:
@@ -80,7 +73,6 @@ public:
 };
 
 void print(const AST &ast, FILE *file);
-
 void print(const ExpressionStatement &expression_statement, FILE *file);
 void print(const StatementList &statement_list, FILE *file);
 void print(const BlockStatement &block_statement, FILE *file);
