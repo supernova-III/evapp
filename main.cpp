@@ -36,14 +36,40 @@ char *readEntireFile(const char *path, size_t &s) {
 }
 
 int main(int argc, char **argv) {
+  // size_t size = 0;
+  // const char *content = readEntireFile("binary_expressions.eva", size);
+  // auto parser = Parser(content);
+  // auto ast = parser.run();
+  // const auto *expr = ast.statements.head;
+  // FILE *out = fopen("binary_expressions.json", "w+");
+  // if (!out) {
+  //   throw std::runtime_error("Cannot open the file");
+  // }
+  // print(ast, out);
+  // fclose(out);
+  testing::InitGoogleTest();
+  const auto res = RUN_ALL_TESTS();
+  return res;
+}
+
+TEST(AST, Tests) {
+  auto parser = Parser(R"(
+    12
+    "asd"
+    { 
+      13
+      "asdasd"
+    }
+  )");
+  auto ast = parser.run();
   // clang-format off
-  BlockStatement {.left_brace = {.type = Token::Type::LeftBrace, .pos = {1, 1}},
-    .statement_list = {
+  AST ref_ast = {
+    .statements = {
       new Statement {
         .type = Statement::Type::ExpressionStatement,
         .expression_statement = {
-          .type = ExpressionStatement::Type::StringLiteral,
-          .string_literal = Token::stringLiteral("asdasd")
+          .type = ExpressionStatement::Type::NumericLiteral,
+          .numeric_literal = Token::numericLiteral(12)
         }
       },
       new Statement {
@@ -53,23 +79,31 @@ int main(int argc, char **argv) {
           .string_literal = Token::stringLiteral("asd")
         }
       },
+      new Statement {
+        .type = Statement::Type::BlockStatement,
+        .block_statement = {
+          .statement_list = {
+            new Statement {
+              .type = Statement::Type::ExpressionStatement,
+              .expression_statement = {
+                .type = ExpressionStatement::Type::NumericLiteral,
+                .numeric_literal = Token::numericLiteral(12)
+              }
+            },
+            new Statement {
+              .type = Statement::Type::ExpressionStatement,
+              .expression_statement = {
+                .type = ExpressionStatement::Type::StringLiteral,
+                .string_literal = Token::stringLiteral("asd")
+              }
+            }
+          }
+        }
+      }
     }
   };
   // clang-format on
-  size_t size = 0;
-  const char *content = readEntireFile("binary_expressions.eva", size);
-  auto parser = Parser(content);
-  auto ast = parser.run();
-  const auto *expr = ast.statements.head;
-  FILE *out = fopen("binary_expressions.json", "w+");
-  if (!out) {
-    throw std::runtime_error("Cannot open the file");
-  }
-  print(ast, out);
-  fclose(out);
-  testing::InitGoogleTest();
-  const auto res = RUN_ALL_TESTS();
-  return res;
+  ASSERT_EQ(ast, ref_ast);
 }
 
 TEST(Tokenizer, NumberTests) {
