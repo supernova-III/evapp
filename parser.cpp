@@ -137,6 +137,8 @@ bool StatementList::operator==(const StatementList &other) const noexcept {
     if (*current->statement != *other_current->statement) {
       return false;
     }
+    current = current->next;
+    other_current = other_current->next;
   }
   if (current != nullptr || other_current != nullptr) {
     return false;
