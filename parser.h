@@ -58,22 +58,22 @@ class Parser {
   AST ast_;
   TokenIterator token_iterator_;
 
-  StatementList
-  parseStatementList(Token::Type stopper_token = Token::Type::End);
+  StatementList parseStatementList(
+      Token::Type stopper_token = Token::Type::End);
 
   Statement *parseStatement();
   Token parseStringLiteral();
   Token parseNumericLiteral();
   Token eatToken(Token::Type type);
 
-public:
+ public:
   Parser(const char *input) : token_iterator_(input), ast_() {}
 
-  const AST &run();
+  const AST &Run();
 };
 
-void print(const AST &ast, FILE *file);
-void print(const ExpressionStatement &expression_statement, FILE *file);
-void print(const StatementList &statement_list, FILE *file);
-void print(const BlockStatement &block_statement, FILE *file);
-void print(const Statement &statement, FILE *file);
+void Print(const AST &ast, FILE *file);
+void Print(const ExpressionStatement &expression_statement, FILE *file);
+void Print(const StatementList &statement_list, FILE *file);
+void Print(const BlockStatement &block_statement, FILE *file);
+void Print(const Statement &statement, FILE *file);

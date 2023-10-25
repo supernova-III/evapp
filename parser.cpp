@@ -5,7 +5,7 @@ StatementList Parser::parseStatementList(Token::Type stopper_token) {
   result.head = new StatementList::Node{};
   result.head->statement = parseStatement();
   auto *node = result.head;
-  while (token_iterator_.peek().type != stopper_token) {
+  while (token_iterator_.Peek().type != stopper_token) {
     auto *new_node = new StatementList::Node{};
     new_node->statement = parseStatement();
     node->next = new_node;
@@ -15,7 +15,7 @@ StatementList Parser::parseStatementList(Token::Type stopper_token) {
 }
 
 Statement *Parser::parseStatement() {
-  const Token &lookahead = token_iterator_.peek();
+  const Token &lookahead = token_iterator_.Peek();
   Statement *result = new Statement{};
 
   switch (lookahead.type) {
@@ -55,21 +55,21 @@ Token Parser::parseNumericLiteral() {
 }
 
 Token Parser::eatToken(Token::Type type) {
-  Token res = token_iterator_.peek();
+  Token res = token_iterator_.Peek();
   if (res.type != type) {
     throw std::runtime_error("Unexpected token");
   }
-  token_iterator_.next();
+  token_iterator_.Next();
   return res;
 }
 
-const AST &Parser::run() {
-  token_iterator_.next();
+const AST &Parser::Run() {
+  token_iterator_.Next();
   ast_.statements = parseStatementList();
   return ast_;
 }
 
-void print(const ExpressionStatement &expression_statement, FILE *file) {
+void Print(const ExpressionStatement &expression_statement, FILE *file) {
   fprintf(file, R"({"type":"ExpressionStatement","expression":{"type":)");
   switch (expression_statement.type) {
     case ExpressionStatement::Type::StringLiteral: {
@@ -92,34 +92,34 @@ void print(const ExpressionStatement &expression_statement, FILE *file) {
   fprintf(file, "}}");
 }
 
-void print(const BlockStatement &block_statement, FILE *file) {
+void Print(const BlockStatement &block_statement, FILE *file) {
   fprintf(
       file,
       R"({"type":"BlockStatement","source_pos":{"line":%llu,"col":%llu},"statement_list":)",
       block_statement.left_brace.pos.line, block_statement.left_brace.pos.col);
-  print(block_statement.statement_list, file);
+  Print(block_statement.statement_list, file);
   fprintf(file, "}");
 }
 
-void print(const Statement &statement, FILE *file) {
+void Print(const Statement &statement, FILE *file) {
   fprintf(file, R"({"type":"Statement","statement":)");
   switch (statement.type) {
     case Statement::Type::BlockStatement: {
-      print(statement.block_statement, file);
+      Print(statement.block_statement, file);
     } break;
     case Statement::Type::ExpressionStatement: {
-      print(statement.expression_statement, file);
+      Print(statement.expression_statement, file);
     } break;
   }
   fprintf(file, "}");
 }
 
-void print(const StatementList &statement_list, FILE *file) {
+void Print(const StatementList &statement_list, FILE *file) {
   fprintf(file, R"({"type":"StatementList","statement_list":[)");
   const auto *ptr = statement_list.head;
   while (ptr != nullptr) {
     if (ptr->statement) {
-      print(*ptr->statement, file);
+      Print(*ptr->statement, file);
     }
     if (ptr->next) {
       fprintf(file, ",");
@@ -129,8 +129,8 @@ void print(const StatementList &statement_list, FILE *file) {
   fprintf(file, "]}");
 }
 
-void print(const AST &ast, FILE *file) {
-  print(ast.statements, file);
+void Print(const AST &ast, FILE *file) {
+  Print(ast.statements, file);
   fprintf(file, "\n");
 }
 

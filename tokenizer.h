@@ -16,7 +16,7 @@ struct SourcePos {
 };
 
 struct Token {
-  enum Type {
+  enum struct Type {
     Invalid,
     End,
     NumericLiteral,
@@ -35,12 +35,12 @@ struct Token {
   };
   SourcePos pos = {1, 1};
 
-  static Token stringLiteral(const char *string) {
-    return {.type = StringLiteral, .string = string};
+  static Token StringLiteral(const char *string) {
+    return {.type = Type::StringLiteral, .string = string};
   }
 
-  static Token numericLiteral(double number) {
-    return {.type = NumericLiteral, .number = number};
+  static Token NumericLiteral(double number) {
+    return {.type = Type::NumericLiteral, .number = number};
   }
 
   bool operator==(const Token &other) const noexcept {
@@ -53,10 +53,10 @@ struct Token {
     }
 
     switch (type) {
-    case NumericLiteral:
-      return number == other.number;
-    case StringLiteral:
-      return strcmp(string, other.string) == 0;
+      case Type::NumericLiteral:
+        return number == other.number;
+      case Type::StringLiteral:
+        return strcmp(string, other.string) == 0;
     }
 
     return true;
@@ -72,14 +72,16 @@ class TokenIterator {
 
   bool isInput() const noexcept { return cursor_ < input_length_; }
 
-public:
+ public:
   TokenIterator(const char *input)
-      : input_(input), input_length_(strlen(input)), cursor_(),
+      : input_(input),
+        input_length_(strlen(input)),
+        cursor_(),
         current_token_() {}
 
   operator bool() const noexcept {
     return current_token_.type != Token::Type::End;
   }
-  const Token &next();
-  const Token &peek() const { return current_token_; }
+  const Token &Next();
+  const Token &Peek() const { return current_token_; }
 };

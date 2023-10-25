@@ -30,7 +30,7 @@
   case 'W': case 'X': case 'Y': case 'Z'
 // clang-format on
 
-const Token &TokenIterator::next() {
+const Token &TokenIterator::Next() {
   if (!isInput()) {
     current_token_.type = Token::Type::End;
     return current_token_;
@@ -81,8 +81,9 @@ const Token &TokenIterator::next() {
         double v;
         const char *start = input_ + cursor_;
         const auto [end, _] = std::from_chars(start, input_ + input_length_, v);
-        current_token_ = {
-            .type = Token::NumericLiteral, .number = v, .pos = current_pos_};
+        current_token_ = {.type = Token::Type::NumericLiteral,
+                          .number = v,
+                          .pos = current_pos_};
         const size_t len = end - start;
         cursor_ += len;
         current_pos_.col += len;
@@ -104,7 +105,7 @@ const Token &TokenIterator::next() {
         char *string = new char[len + 1];
         string[len] = 0;
         memcpy(string, input_ + start + 1, len);
-        current_token_.type = Token::StringLiteral;
+        current_token_.type = Token::Type::StringLiteral;
         current_token_.string = string;
         ++cursor_;
         current_pos_.col += 1;

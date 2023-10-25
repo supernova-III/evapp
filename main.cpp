@@ -39,13 +39,13 @@ int main(int argc, char **argv) {
   size_t size = 0;
   const char *content = readEntireFile("blocks_literals.eva", size);
   auto parser = Parser(content);
-  auto ast = parser.run();
+  auto ast = parser.Run();
   const auto *expr = ast.statements.head;
   FILE *out = fopen("blocks_literals.json", "w+");
   if (!out) {
     throw std::runtime_error("Cannot open the file");
   }
-  print(ast, out);
+  Print(ast, out);
   fclose(out);
   // testing::InitGoogleTest();
   // const auto res = RUN_ALL_TESTS();
@@ -62,7 +62,7 @@ TEST(AST, Tests) {
     }
 
   )");
-  auto ast = parser.run();
+  auto ast = parser.Run();
   // clang-format off
   AST ref_ast = {
     .statements = {
@@ -70,14 +70,14 @@ TEST(AST, Tests) {
         .type = Statement::Type::ExpressionStatement,
         .expression_statement = {
           .type = ExpressionStatement::Type::NumericLiteral,
-          .numeric_literal = Token::numericLiteral(12)
+          .numeric_literal = Token::NumericLiteral(12)
         }
       },
       new Statement {
         .type = Statement::Type::ExpressionStatement,
         .expression_statement = {
           .type = ExpressionStatement::Type::StringLiteral,
-          .string_literal = Token::stringLiteral("asd")
+          .string_literal = Token::StringLiteral("asd")
         }
       },
       new Statement {
@@ -88,14 +88,14 @@ TEST(AST, Tests) {
               .type = Statement::Type::ExpressionStatement,
               .expression_statement = {
                 .type = ExpressionStatement::Type::NumericLiteral,
-                .numeric_literal = Token::numericLiteral(12)
+                .numeric_literal = Token::NumericLiteral(12)
               }
             },
             new Statement {
               .type = Statement::Type::ExpressionStatement,
               .expression_statement = {
                 .type = ExpressionStatement::Type::StringLiteral,
-                .string_literal = Token::stringLiteral("asd")
+                .string_literal = Token::StringLiteral("asd")
               }
             }
           }
@@ -115,22 +115,25 @@ TEST(Tokenizer, NumberTests) {
   };
   Test inputs[] = {
       {.input = "123",
-       .expected = Token{.type = Token::NumericLiteral, .number = 123},
+       .expected = Token{.type = Token::Type::NumericLiteral, .number = 123},
        .desc = "Integer"},
       {.input = "123.123",
-       .expected = Token{.type = Token::NumericLiteral, .number = 123.123},
+       .expected =
+           Token{.type = Token::Type::NumericLiteral, .number = 123.123},
        .desc = "Float"},
       {.input = "123.123e123",
-       .expected = Token{.type = Token::NumericLiteral, .number = 123.123e123},
+       .expected =
+           Token{.type = Token::Type::NumericLiteral, .number = 123.123e123},
        .desc = "Float with exponent"},
       {.input = "123.e-123",
-       .expected = Token{.type = Token::NumericLiteral, .number = 123.e-123},
+       .expected =
+           Token{.type = Token::Type::NumericLiteral, .number = 123.e-123},
        .desc = "Float with exponent"},
   };
 
   for (const auto &i : inputs) {
     TokenIterator iter(i.input);
     printf("Running %s...\n", i.desc);
-    ASSERT_EQ(iter.next(), i.expected);
+    ASSERT_EQ(iter.Next(), i.expected);
   }
 }
