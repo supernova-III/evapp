@@ -73,17 +73,20 @@ void print(const ExpressionStatement &expression_statement, FILE *file) {
   fprintf(file, R"({"type":"ExpressionStatement","expression":{"type":)");
   switch (expression_statement.type) {
     case ExpressionStatement::Type::StringLiteral: {
-      fprintf(file,
-              R"("StringLiteral","source_pos":"<%llu,%llu>", "value":"%s")",
-              expression_statement.string_literal.pos.line,
-              expression_statement.string_literal.pos.col,
-              expression_statement.string_literal.string);
+      fprintf(
+          file,
+          R"("StringLiteral","source_pos":{"line":%llu,"col":%llu}, "value":"%s")",
+          expression_statement.string_literal.pos.line,
+          expression_statement.string_literal.pos.col,
+          expression_statement.string_literal.string);
     } break;
     case ExpressionStatement::Type::NumericLiteral: {
-      fprintf(file, R"("NumericLiteral","source_pos":"<%llu,%llu>","value":%f)",
-              expression_statement.numeric_literal.pos.line,
-              expression_statement.numeric_literal.pos.col,
-              expression_statement.numeric_literal.number);
+      fprintf(
+          file,
+          R"("NumericLiteral","source_pos":{"line":%llu,"col":%llu},"value":%f)",
+          expression_statement.numeric_literal.pos.line,
+          expression_statement.numeric_literal.pos.col,
+          expression_statement.numeric_literal.number);
     } break;
   }
   fprintf(file, "}}");
@@ -92,7 +95,7 @@ void print(const ExpressionStatement &expression_statement, FILE *file) {
 void print(const BlockStatement &block_statement, FILE *file) {
   fprintf(
       file,
-      R"({"type":"BlockStatement","source_pos":"<%llu,%llu>","statement_list":)",
+      R"({"type":"BlockStatement","source_pos":{"line":%llu,"col":%llu},"statement_list":)",
       block_statement.left_brace.pos.line, block_statement.left_brace.pos.col);
   print(block_statement.statement_list, file);
   fprintf(file, "}");

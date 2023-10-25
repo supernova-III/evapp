@@ -36,20 +36,20 @@ char *readEntireFile(const char *path, size_t &s) {
 }
 
 int main(int argc, char **argv) {
-  // size_t size = 0;
-  // const char *content = readEntireFile("binary_expressions.eva", size);
-  // auto parser = Parser(content);
-  // auto ast = parser.run();
-  // const auto *expr = ast.statements.head;
-  // FILE *out = fopen("binary_expressions.json", "w+");
-  // if (!out) {
-  //   throw std::runtime_error("Cannot open the file");
-  // }
-  // print(ast, out);
-  // fclose(out);
-  testing::InitGoogleTest();
-  const auto res = RUN_ALL_TESTS();
-  return res;
+  size_t size = 0;
+  const char *content = readEntireFile("blocks_literals.eva", size);
+  auto parser = Parser(content);
+  auto ast = parser.run();
+  const auto *expr = ast.statements.head;
+  FILE *out = fopen("blocks_literals.json", "w+");
+  if (!out) {
+    throw std::runtime_error("Cannot open the file");
+  }
+  print(ast, out);
+  fclose(out);
+  // testing::InitGoogleTest();
+  // const auto res = RUN_ALL_TESTS();
+  return 0;
 }
 
 TEST(AST, Tests) {
@@ -60,6 +60,7 @@ TEST(AST, Tests) {
       13
       "asdasd"
     }
+
   )");
   auto ast = parser.run();
   // clang-format off
