@@ -19,29 +19,29 @@ Statement *Parser::parseStatement() {
   Statement *result = new Statement{};
 
   switch (lookahead.type) {
-  case Token::Type::StringLiteral: {
-    result->type = Statement::Type::ExpressionStatement;
-    result->expression_statement.type =
-        ExpressionStatement::Type::StringLiteral;
-    result->expression_statement.string_literal = parseStringLiteral();
-  } break;
-  case Token::Type::NumericLiteral: {
-    result->type = Statement::Type::ExpressionStatement;
-    result->expression_statement.type =
-        ExpressionStatement::Type::NumericLiteral;
-    result->expression_statement.numeric_literal = parseNumericLiteral();
-  } break;
-  case Token::Type::LeftBrace: {
-    const auto left_brace = eatToken(Token::Type::LeftBrace);
-    result->type = Statement::Type::BlockStatement;
-    result->block_statement.statement_list =
-        parseStatementList(Token::Type::RightBrace);
-    result->block_statement.left_brace = left_brace;
-    eatToken(Token::Type::RightBrace);
-  } break;
-  default:
-    throw std::runtime_error("Unimplemented");
-    break;
+    case Token::Type::StringLiteral: {
+      result->type = Statement::Type::ExpressionStatement;
+      result->expression_statement.type =
+          ExpressionStatement::Type::StringLiteral;
+      result->expression_statement.string_literal = parseStringLiteral();
+    } break;
+    case Token::Type::NumericLiteral: {
+      result->type = Statement::Type::ExpressionStatement;
+      result->expression_statement.type =
+          ExpressionStatement::Type::NumericLiteral;
+      result->expression_statement.numeric_literal = parseNumericLiteral();
+    } break;
+    case Token::Type::LeftBrace: {
+      const auto left_brace = eatToken(Token::Type::LeftBrace);
+      result->type = Statement::Type::BlockStatement;
+      result->block_statement.statement_list =
+          parseStatementList(Token::Type::RightBrace);
+      result->block_statement.left_brace = left_brace;
+      eatToken(Token::Type::RightBrace);
+    } break;
+    default:
+      throw std::runtime_error("Unimplemented");
+      break;
   }
   return result;
 }
@@ -72,18 +72,19 @@ const AST &Parser::run() {
 void print(const ExpressionStatement &expression_statement, FILE *file) {
   fprintf(file, R"({"type":"ExpressionStatement","expression":{"type":)");
   switch (expression_statement.type) {
-  case ExpressionStatement::Type::StringLiteral: {
-    fprintf(file, R"("StringLiteral","source_pos":"<%llu,%llu>", "value":"%s")",
-            expression_statement.string_literal.pos.line,
-            expression_statement.string_literal.pos.col,
-            expression_statement.string_literal.string);
-  } break;
-  case ExpressionStatement::Type::NumericLiteral: {
-    fprintf(file, R"("NumericLiteral","source_pos":"<%llu,%llu>","value":%f)",
-            expression_statement.numeric_literal.pos.line,
-            expression_statement.numeric_literal.pos.col,
-            expression_statement.numeric_literal.number);
-  } break;
+    case ExpressionStatement::Type::StringLiteral: {
+      fprintf(file,
+              R"("StringLiteral","source_pos":"<%llu,%llu>", "value":"%s")",
+              expression_statement.string_literal.pos.line,
+              expression_statement.string_literal.pos.col,
+              expression_statement.string_literal.string);
+    } break;
+    case ExpressionStatement::Type::NumericLiteral: {
+      fprintf(file, R"("NumericLiteral","source_pos":"<%llu,%llu>","value":%f)",
+              expression_statement.numeric_literal.pos.line,
+              expression_statement.numeric_literal.pos.col,
+              expression_statement.numeric_literal.number);
+    } break;
   }
   fprintf(file, "}}");
 }
@@ -100,12 +101,12 @@ void print(const BlockStatement &block_statement, FILE *file) {
 void print(const Statement &statement, FILE *file) {
   fprintf(file, R"({"type":"Statement","statement":)");
   switch (statement.type) {
-  case Statement::Type::BlockStatement: {
-    print(statement.block_statement, file);
-  } break;
-  case Statement::Type::ExpressionStatement: {
-    print(statement.expression_statement, file);
-  } break;
+    case Statement::Type::BlockStatement: {
+      print(statement.block_statement, file);
+    } break;
+    case Statement::Type::ExpressionStatement: {
+      print(statement.expression_statement, file);
+    } break;
   }
   fprintf(file, "}");
 }
@@ -176,12 +177,12 @@ bool ExpressionStatement::operator==(
     return false;
   }
   switch (type) {
-  case ExpressionStatement::Type::NumericLiteral: {
-    return numeric_literal == other.numeric_literal;
-  } break;
-  case ExpressionStatement::Type::StringLiteral: {
-    return string_literal == other.string_literal;
-  } break;
+    case ExpressionStatement::Type::NumericLiteral: {
+      return numeric_literal == other.numeric_literal;
+    } break;
+    case ExpressionStatement::Type::StringLiteral: {
+      return string_literal == other.string_literal;
+    } break;
   }
   return false;
 }
@@ -207,10 +208,10 @@ bool Statement::operator==(const Statement &other) const noexcept {
     return false;
   }
   switch (type) {
-  case Statement::Type::ExpressionStatement:
-    return expression_statement == other.expression_statement;
-  case Statement::Type::BlockStatement:
-    return block_statement == other.block_statement;
+    case Statement::Type::ExpressionStatement:
+      return expression_statement == other.expression_statement;
+    case Statement::Type::BlockStatement:
+      return block_statement == other.block_statement;
   }
   return false;
 }
