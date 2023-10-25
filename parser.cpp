@@ -2,11 +2,11 @@
 
 StatementList Parser::parseStatementList(Token::Type stopper_token) {
   StatementList result = {};
-  result.head = new StatementList::ListNode{};
+  result.head = new StatementList::Node{};
   result.head->statement = parseStatement();
   auto *node = result.head;
   while (token_iterator_.peek().type != stopper_token) {
-    auto *new_node = new StatementList::ListNode{};
+    auto *new_node = new StatementList::Node{};
     new_node->statement = parseStatement();
     node->next = new_node;
     node = new_node;

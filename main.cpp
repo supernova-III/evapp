@@ -37,21 +37,20 @@ char *readEntireFile(const char *path, size_t &s) {
 
 int main(int argc, char **argv) {
   // clang-format off
-  BlockStatement {
-    .left_brace = {.type = Token::Type::LeftBrace, .pos = {1, 1}},
+  BlockStatement {.left_brace = {.type = Token::Type::LeftBrace, .pos = {1, 1}},
     .statement_list = {
       new Statement {
         .type = Statement::Type::ExpressionStatement,
         .expression_statement = {
           .type = ExpressionStatement::Type::StringLiteral,
-          .string_literal = {.type = Token::Type::StringLiteral, .string = "asd"}
+          .string_literal = Token::stringLiteral("asdasd")
         }
       },
       new Statement {
         .type = Statement::Type::ExpressionStatement,
         .expression_statement = {
           .type = ExpressionStatement::Type::StringLiteral,
-          .string_literal = {.type = Token::Type::StringLiteral, .string = "asd"}
+          .string_literal = Token::stringLiteral("asd")
         }
       },
     }

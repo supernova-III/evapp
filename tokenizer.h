@@ -5,6 +5,8 @@
 
 struct SourcePos {
   size_t line, col;
+
+  operator bool() const noexcept { return line != 0 && col != 0; }
 };
 
 struct Token {
@@ -26,6 +28,14 @@ struct Token {
     const char *string;
   };
   SourcePos pos = {1, 1};
+
+  static Token stringLiteral(const char *string) {
+    return {.type = StringLiteral, .string = string};
+  }
+
+  static Token numericLiteral(double number) {
+    return {.type = NumericLiteral, .number = number};
+  }
 
   bool operator==(const Token &other) const noexcept {
     if (type != other.type) {

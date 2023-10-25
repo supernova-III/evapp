@@ -6,23 +6,21 @@ struct Statement;
 
 // TODO: replace with vector
 struct StatementList {
-  struct ListNode {
+  struct Node {
     Statement *statement;
-    ListNode *next;
+    Node *next;
   };
-  ListNode *head;
-  ListNode *tail;
+  Node *head = nullptr;
+  Node *tail = nullptr;
 
-  StatementList() = default;
-
-  StatementList(std::initializer_list<Statement *> statements) {
+  StatementList(std::initializer_list<Statement *> statements = {}) {
     for (const auto &statement : statements) {
       addStatement(statement);
     }
   }
 
   StatementList &addStatement(Statement *s) {
-    ListNode *new_node = new ListNode{.statement = s, .next = nullptr};
+    Node *new_node = new Node{.statement = s, .next = nullptr};
     if (!head) {
       head = new_node;
       head->next = tail;
@@ -37,7 +35,7 @@ struct StatementList {
 };
 
 struct ExpressionStatement {
-  enum struct Type { StringLiteral, NumericLiteral, BinaryExpression } type;
+  enum struct Type { StringLiteral, NumericLiteral } type;
   union {
     Token string_literal;
     Token numeric_literal;
