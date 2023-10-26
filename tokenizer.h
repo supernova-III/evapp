@@ -35,12 +35,12 @@ struct Token {
   };
   SourcePos pos = {1, 1};
 
-  static Token StringLiteral(const char *string) {
-    return {.type = Type::StringLiteral, .string = string};
+  static Token StringLiteral(const char *string, SourcePos pos = {1, 1}) {
+    return {.type = Type::StringLiteral, .string = string, .pos = pos};
   }
 
-  static Token NumericLiteral(double number) {
-    return {.type = Type::NumericLiteral, .number = number};
+  static Token NumericLiteral(double number, SourcePos pos = {1, 1}) {
+    return {.type = Type::NumericLiteral, .number = number, .pos = pos};
   }
 
   bool operator==(const Token &other) const noexcept {
@@ -48,9 +48,9 @@ struct Token {
       return false;
     }
 
-    if (pos != other.pos) {
-      return false;
-    }
+    // if (pos != other.pos) {
+    //   return false;
+    // }
 
     switch (type) {
       case Type::NumericLiteral:
