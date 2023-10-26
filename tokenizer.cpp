@@ -31,13 +31,13 @@
 // clang-format on
 
 const Token &TokenIterator::Next() {
-  if (!isInput()) {
-    current_token_.type = Token::Type::End;
-    return current_token_;
-  }
   bool repeat = true;
 
   while (repeat) {
+    if (!isInput()) {
+      current_token_.type = Token::Type::End;
+      return current_token_;
+    }
     repeat = false;
     char c = input_[cursor_];
     switch (c) {
