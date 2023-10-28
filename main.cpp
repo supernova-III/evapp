@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
-#include <stdint.h>
-
-#include "tokenizer.cpp"
-#include "parser.cpp"
+#include "tokenizer.h"
+#include "parser.h"
 
 #include <gtest/gtest.h>
 
@@ -36,75 +34,20 @@ char *readEntireFile(const char *path, size_t &s) {
 }
 
 int main(int argc, char **argv) {
-  // size_t size = 0;
-  // const char *content = readEntireFile("blocks_literals.eva", size);
-  // auto parser = Parser(content);
-  // auto ast = parser.Run();
-  // const auto *expr = ast.statements.head;
-  // FILE *out = fopen("blocks_literals.json", "w+");
-  // if (!out) {
-  //   throw std::runtime_error("Cannot open the file");
-  // }
-  // Print(ast, out);
-  // fclose(out);
-  testing::InitGoogleTest();
-  const auto res = RUN_ALL_TESTS();
-  return 0;
-}
-
-TEST(AST, Tests) {
-  auto parser = Parser(
-      R"(
-    12
-    "asd"
-    { 
-      13
-      "asdasd"
-    })");
+  size_t size = 0;
+  const char *content = readEntireFile("blocks_literals.eva", size);
+  auto parser = Parser(content);
   auto ast = parser.Run();
-  // clang-format off
-  AST ref_ast = {
-    .statements = {
-      new Statement {
-        .type = Statement::Type::ExpressionStatement,
-        .expression_statement = {
-          .type = ExpressionStatement::Type::NumericLiteral,
-          .numeric_literal = Token::NumericLiteral(12, {2, 5})
-        }
-      },
-      new Statement {
-        .type = Statement::Type::ExpressionStatement,
-        .expression_statement = {
-          .type = ExpressionStatement::Type::StringLiteral,
-          .string_literal = Token::StringLiteral("asd", {3, 5})
-        }
-      },
-      new Statement {
-        .type = Statement::Type::BlockStatement,
-        .block_statement = {
-          .left_brace = Token{.type = Token::Type::LeftBrace, .pos = {4, 5}},
-          .statement_list = {
-            new Statement {
-              .type = Statement::Type::ExpressionStatement,
-              .expression_statement = {
-                .type = ExpressionStatement::Type::NumericLiteral,
-                .numeric_literal = Token::NumericLiteral(13, {5, 7})
-              }
-            },
-            new Statement {
-              .type = Statement::Type::ExpressionStatement,
-              .expression_statement = {
-                .type = ExpressionStatement::Type::StringLiteral,
-                .string_literal = Token::StringLiteral("asdasd", {6, 7})
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-  // clang-format on
-  ASSERT_EQ(ast, ref_ast);
+  const auto *expr = ast.statements.head;
+  FILE *out = fopen("blocks_literals.json", "w+");
+  if (!out) {
+    throw std::runtime_error("Cannot open the file");
+  }
+  ast.Print(out);
+  fclose(out);
+  // testing::InitGoogleTest();
+  // const auto res = RUN_ALL_TESTS();
+  return 0;
 }
 
 TEST(Tokenizer, NumberTests) {

@@ -1,6 +1,5 @@
 #pragma once
 #include <stddef.h>
-#include <stdint.h>
 #include <string.h>
 
 struct SourcePos {
@@ -57,6 +56,8 @@ struct Token {
         return number == other.number;
       case Type::StringLiteral:
         return strcmp(string, other.string) == 0;
+      default:
+        break;
     }
 
     return true;

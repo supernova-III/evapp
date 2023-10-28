@@ -1,6 +1,7 @@
 #pragma once
 #include "tokenizer.h"
-#include <vector>
+#include <initializer_list>
+#include <stdio.h>
 
 struct Statement;
 
@@ -12,28 +13,53 @@ struct StatementList {
   Node *head = nullptr;
   Node *tail = nullptr;
 
-  bool operator==(const StatementList &other) const noexcept;
-  bool operator!=(const StatementList &other) const noexcept;
-
   StatementList(std::initializer_list<Statement *> statements = {});
   StatementList &AddStatement(Statement *s);
+  void Print(FILE *file);
+};
+
+struct ExpressionStatement;
+struct AdditiveExpression {
+  enum struct Type { Primary, Complex } type;
+
+  union {
+    ExpressionStatement *primary;
+    struct {
+      Token additive_operator;
+      AdditiveExpression *additive_expression;
+      ExpressionStatement *primary;
+    } complex;
+  };
+  void Print(FILE *file);
+};
+
+struct Literal {
+  enum struct Type { String, Number } type;
+  Token token;
+  void Print(FILE *file);
+};
+
+struct PrimaryExpression {
+  enum struct Type { Literal } type;
+  union {
+    Literal literal;
+  };
+  void Print(FILE *file);
 };
 
 struct ExpressionStatement {
-  enum struct Type { StringLiteral, NumericLiteral } type;
+  enum struct Type { PrimaryExpression, AdditiveExpression } type;
   union {
-    Token string_literal;
-    Token numeric_literal;
+    PrimaryExpression primary_expression;
+    AdditiveExpression additive_expression;
   };
-  bool operator==(const ExpressionStatement &other) const noexcept;
-  bool operator!=(const ExpressionStatement &other) const noexcept;
+  void Print(FILE *file);
 };
 
 struct BlockStatement {
   Token left_brace;
   StatementList statement_list;
-  bool operator==(const BlockStatement &other) const noexcept;
-  bool operator!=(const BlockStatement &other) const noexcept;
+  void Print(FILE *file);
 };
 
 struct Statement {
@@ -44,16 +70,18 @@ struct Statement {
     BlockStatement block_statement;
   };
 
-  bool operator==(const Statement &other) const noexcept;
-  bool operator!=(const Statement &other) const noexcept;
+  void Print(FILE *file);
 };
 
 struct AST {
   StatementList statements;
-  bool operator==(const AST &other) const noexcept;
-  bool operator!=(const AST &other) const noexcept;
+
+  void Print(FILE *file);
 };
 
+// - Building AST
+// - Syntax analysis with meaningful messages
+// - Printing AST
 class Parser {
   AST ast_;
   TokenIterator token_iterator_;
@@ -64,6 +92,7 @@ class Parser {
   Statement *parseStatement();
   Token parseStringLiteral();
   Token parseNumericLiteral();
+  AdditiveExpression parseAdditiveExpression();
   Token eatToken(Token::Type type);
 
  public:
@@ -71,9 +100,3 @@ class Parser {
 
   const AST &Run();
 };
-
-void Print(const AST &ast, FILE *file);
-void Print(const ExpressionStatement &expression_statement, FILE *file);
-void Print(const StatementList &statement_list, FILE *file);
-void Print(const BlockStatement &block_statement, FILE *file);
-void Print(const Statement &statement, FILE *file);
