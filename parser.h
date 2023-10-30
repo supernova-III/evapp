@@ -82,6 +82,7 @@ struct AST {
 // - Building AST
 // - Syntax analysis with meaningful messages
 // - Printing AST
+// - Each AST node is mapped to the source code location
 class Parser {
   AST ast_;
   TokenIterator token_iterator_;
