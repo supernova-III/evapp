@@ -129,8 +129,5 @@ const Token &TokenIterator::Next() {
         break;
     }
   }
-  // FIXME:
-  // 1. current_token_ is not set to Token::Type::End if the input exhausted
-  // 2. if explicitly set to Token::Type::End, the last token will be lost
   return current_token_;
 }
