@@ -4,7 +4,6 @@ project(eva LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_C_STANDARD 11)
 include(FetchContent)
 FetchContent_Declare(googletest
 	GIT_REPOSITORY https://github.com/google/googletest
@@ -12,13 +11,14 @@ FetchContent_Declare(googletest
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+add_compile_options(-Wno-c99-designator)
+
 add_executable(${PROJECT_NAME} 
   main.cpp
   tokenizer.h
   tokenizer.cpp
   parser.h
   parser.cpp
-  NatvisFile.natvis 
 )
 
 target_link_libraries(${PROJECT_NAME} GTest::gtest)
