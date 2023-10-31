@@ -1,7 +1,6 @@
 #pragma once
 #include "tokenizer.h"
 #include <initializer_list>
-#include <stdio.h>
 
 struct Statement;
 
@@ -15,68 +14,57 @@ struct StatementList {
 
   StatementList(std::initializer_list<Statement *> statements = {});
   StatementList &AddStatement(Statement *s);
-  void Print(FILE *file);
 };
 
 struct ExpressionStatement;
-struct AdditiveExpression {
-  enum struct Type { Primary, Complex } type;
+struct PrimaryExpression;
 
-  union {
-    ExpressionStatement *primary;
-    struct {
-      Token additive_operator;
-      AdditiveExpression *additive_expression;
-      ExpressionStatement *primary;
-    } complex;
-  };
-  void Print(FILE *file);
+struct MultiplicativeExpression {
+  PrimaryExpression *left;
+  // nullptr if the expression is just a primary expression
+  PrimaryExpression *right;
+  // Token::Type::End if the expression is just a primary expression
+  Token multiplicative_operator;
 };
 
-struct Literal {
-  enum struct Type { String, Number } type;
-  Token token;
-  void Print(FILE *file);
+struct AdditiveExpression {
+  Token additive_operator;
+  MultiplicativeExpression *left;
+  MultiplicativeExpression *right;
 };
 
 struct PrimaryExpression {
-  enum struct Type { Literal } type;
+  enum struct Type { StringLiteral, NumericLiteral } type;
   union {
-    Literal literal;
+    Token string_literal;
+    Token numeric_literal;
   };
-  void Print(FILE *file);
 };
 
 struct ExpressionStatement {
-  enum struct Type { PrimaryExpression, AdditiveExpression } type;
+  enum struct Type { MultiplicativeExpression, AdditiveExpression } type;
   union {
-    PrimaryExpression primary_expression;
-    AdditiveExpression additive_expression;
+    AdditiveExpression *additive_expression;
+    MultiplicativeExpression *multiplicative_expression;
   };
-  void Print(FILE *file);
 };
 
 struct BlockStatement {
   Token left_brace;
   StatementList statement_list;
-  void Print(FILE *file);
 };
 
 struct Statement {
   enum struct Type { ExpressionStatement, BlockStatement } type;
 
   union {
-    ExpressionStatement expression_statement;
-    BlockStatement block_statement;
+    ExpressionStatement *expression_statement;
+    BlockStatement *block_statement;
   };
-
-  void Print(FILE *file);
 };
 
 struct AST {
   StatementList statements;
-
-  void Print(FILE *file);
 };
 
 // - Building AST
@@ -91,9 +79,12 @@ class Parser {
       Token::Type stopper_token = Token::Type::End);
 
   Statement *parseStatement();
+  ExpressionStatement *parseExpressionStatement();
   Token parseStringLiteral();
   Token parseNumericLiteral();
-  AdditiveExpression parseAdditiveExpression();
+  PrimaryExpression *parsePrimaryExpression();
+  AdditiveExpression *parseAdditiveExpression();
+  MultiplicativeExpression *parseMultiplicativeExpression();
   Token eatToken(Token::Type type);
 
  public:

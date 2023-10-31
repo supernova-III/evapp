@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
-#include "tokenizer.h"
+#include <stdexcept>
 #include "parser.h"
-
-#include <gtest/gtest.h>
 
 size_t getFileSize(FILE *file) {
   fseek(file, 0, SEEK_END);
@@ -13,7 +11,8 @@ size_t getFileSize(FILE *file) {
 }
 
 char *readEntireFile(const char *path, size_t &s) {
-  FILE *file = fopen(path, "rb");
+  FILE *file = NULL;
+  fopen_s(&file, path, "rb");
   if (file == NULL) {
     throw std::runtime_error("Cannot open source file");
   }
@@ -39,44 +38,5 @@ int main(int argc, char **argv) {
   auto parser = Parser(content);
   auto ast = parser.Run();
   const auto *expr = ast.statements.head;
-  FILE *out = fopen("blocks_literals.json", "w+");
-  if (!out) {
-    throw std::runtime_error("Cannot open the file");
-  }
-  ast.Print(out);
-  fclose(out);
-  // testing::InitGoogleTest();
-  // const auto res = RUN_ALL_TESTS();
   return 0;
-}
-
-TEST(Tokenizer, NumberTests) {
-  struct Test {
-    const char *input;
-    Token expected;
-    const char *desc;
-  };
-  Test inputs[] = {
-      {.input = "123",
-       .expected = Token{.type = Token::Type::NumericLiteral, .number = 123},
-       .desc = "Integer"},
-      {.input = "123.123",
-       .expected =
-           Token{.type = Token::Type::NumericLiteral, .number = 123.123},
-       .desc = "Float"},
-      {.input = "123.123e123",
-       .expected =
-           Token{.type = Token::Type::NumericLiteral, .number = 123.123e123},
-       .desc = "Float with exponent"},
-      {.input = "123.e-123",
-       .expected =
-           Token{.type = Token::Type::NumericLiteral, .number = 123.e-123},
-       .desc = "Float with exponent"},
-  };
-
-  for (const auto &i : inputs) {
-    TokenIterator iter(i.input);
-    printf("Running %s...\n", i.desc);
-    ASSERT_EQ(iter.Next(), i.expected);
-  }
 }

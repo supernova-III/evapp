@@ -47,10 +47,6 @@ struct Token {
       return false;
     }
 
-    // if (pos != other.pos) {
-    //   return false;
-    // }
-
     switch (type) {
       case Type::NumericLiteral:
         return number == other.number;
