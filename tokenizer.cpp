@@ -43,59 +43,44 @@ const Token &TokenIterator::Next() {
     switch (c) {
       case '+': {
         current_token_.type = Token::Type::Plus;
-        current_token_.pos = current_pos_;
         ++cursor_;
-        current_pos_.col += 1;
       } break;
       case '-': {
         current_token_.type = Token::Type::Minus;
-        current_token_.pos = current_pos_;
         ++cursor_;
-        current_pos_.col += 1;
       } break;
       case '*': {
         current_token_.type = Token::Type::Multiply;
-        current_token_.pos = current_pos_;
         ++cursor_;
-        current_pos_.col += 1;
       } break;
       case '/': {
         current_token_.type = Token::Type::Divide;
-        current_token_.pos = current_pos_;
         ++cursor_;
-        current_pos_.col += 1;
       } break;
       case '{': {
         current_token_.type = Token::Type::LeftBrace;
-        current_token_.pos = current_pos_;
         ++cursor_;
-        current_pos_.col += 1;
       } break;
       case '}': {
         current_token_.type = Token::Type::RightBrace;
-        current_token_.pos = current_pos_;
         ++cursor_;
-        current_token_.pos.col += 1;
       } break;
       case CASE_DIGIT: {
         double v;
         const char *start = input_ + cursor_;
         const auto [end, _] = std::from_chars(start, input_ + input_length_, v);
-        current_token_ = {.type = Token::Type::NumericLiteral,
-                          .number = v,
-                          .pos = current_pos_};
+        current_token_ = {
+            .type = Token::Type::NumericLiteral,
+            .number = v,
+        };
         const size_t len = end - start;
         cursor_ += len;
-        current_pos_.col += len;
       } break;
       case '"':
       case '\'': {
-        current_token_.pos = current_pos_;
         const size_t start = cursor_++;
-        current_pos_.col += 1;
         while (isInput() && input_[cursor_] != c) {
           ++cursor_;
-          current_pos_.col += 1;
         }
         if (input_[cursor_] != c) {
           throw std::runtime_error("Unexpected end of stream.");
@@ -108,21 +93,12 @@ const Token &TokenIterator::Next() {
         current_token_.type = Token::Type::StringLiteral;
         current_token_.string = string;
         ++cursor_;
-        current_pos_.col += 1;
       } break;
-      case '\n': {
-        current_pos_.col = 1;
-        current_pos_.line += 1;
-        [[fallthrough]];
-      }
-      case '\r': {
-        current_pos_.col -= 1;
-        [[fallthrough]];
-      }
+      case '\n':
+      case '\r':
       case ' ':
       case '\t': {
         cursor_ += 1;
-        current_pos_.col += 1;
         repeat = true;
       } break;
       default:

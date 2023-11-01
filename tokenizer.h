@@ -2,18 +2,6 @@
 #include <stddef.h>
 #include <string.h>
 
-struct SourcePos {
-  size_t line, col;
-
-  operator bool() const noexcept { return line != 0 && col != 0; }
-  bool operator==(const SourcePos &other) const noexcept {
-    return line == other.line && col == other.col;
-  }
-  bool operator!=(const SourcePos &other) const noexcept {
-    return !(*this == other);
-  }
-};
-
 struct Token {
   enum struct Type {
     Invalid,
@@ -32,15 +20,6 @@ struct Token {
     double number;
     const char *string;
   };
-  SourcePos pos = {1, 1};
-
-  static Token StringLiteral(const char *string, SourcePos pos = {1, 1}) {
-    return {.type = Type::StringLiteral, .string = string, .pos = pos};
-  }
-
-  static Token NumericLiteral(double number, SourcePos pos = {1, 1}) {
-    return {.type = Type::NumericLiteral, .number = number, .pos = pos};
-  }
 
   bool operator==(const Token &other) const noexcept {
     if (type != other.type) {
@@ -65,7 +44,6 @@ class TokenIterator {
   size_t input_length_;
   size_t cursor_ = 0;
   Token current_token_ = {};
-  SourcePos current_pos_ = {1, 1};
 
   bool isInput() const noexcept { return cursor_ < input_length_; }
 

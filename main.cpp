@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "parser.h"
 
+namespace {
 size_t getFileSize(FILE *file) {
   fseek(file, 0, SEEK_END);
   const size_t result = ftell(file);
@@ -31,12 +32,11 @@ char *readEntireFile(const char *path, size_t &s) {
 
   return res;
 }
+}  // namespace
 
 int main(int argc, char **argv) {
   size_t size = 0;
   const char *content = readEntireFile("blocks_literals.eva", size);
   auto parser = Parser(content);
-  auto ast = parser.Run();
-  const auto *expr = ast.statements.head;
   return 0;
 }
