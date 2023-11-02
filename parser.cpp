@@ -36,11 +36,12 @@ ExpressionStatement* Parser::numericLiteral() {
 static bool isAddOp(Token::Type type) {
   return type == Token::Type::Plus || type == Token::Type::Minus;
 }
+
 ExpressionStatement* Parser::additiveExpression() {
   ExpressionStatement* left = multiplicativeExpression();
-  Token operation = token_iterator_.Peek();
-  while (isAddOp(operation.type)) {
-    operation = token_iterator_.Next();
+  while (isAddOp(token_iterator_.Peek().type)) {
+    Token operation = token_iterator_.Peek();
+    token_iterator_.Next();
     ExpressionStatement* right = multiplicativeExpression();
     left->binary.left = left->Duplicate();
     left->binary.right = right;
@@ -56,9 +57,9 @@ static bool isMulOp(Token::Type type) {
 
 ExpressionStatement* Parser::multiplicativeExpression() {
   ExpressionStatement* left = numericLiteral();
-  Token operation = token_iterator_.Peek();
-  while (isMulOp(operation.type)) {
-    operation = token_iterator_.Next();
+  while (isMulOp(token_iterator_.Peek().type)) {
+    Token operation = token_iterator_.Peek();
+    token_iterator_.Next();
     ExpressionStatement* right = numericLiteral();
     left->binary.left = left->Duplicate();
     left->binary.right = right;
