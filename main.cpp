@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
-#include <stdexcept>
 #include "parser.h"
+#include "defines.h"
 
 namespace {
 size_t getFileSize(FILE *file) {
@@ -11,32 +11,29 @@ size_t getFileSize(FILE *file) {
   return result;
 }
 
-char *readEntireFile(const char *path, size_t &s) {
+char *readEntireFile(const char *path) {
   FILE *file = NULL;
   fopen_s(&file, path, "rb");
   if (file == NULL) {
-    throw std::runtime_error("Cannot open source file");
+    Panic("Cannot open file %s", path);
   }
 
   const size_t size = getFileSize(file);
-  char *res = (char *)calloc(size + 1, 1);
-  if (!res) {
-    throw std::runtime_error("Cannot allocate memory");
-  }
+  char *res = new char[size + 1];
+  res[size] = 0;
 
   const auto read_res = fread(res, 1, size, file);
   if (read_res != size) {
-    throw std::runtime_error("Cannot read the file");
+    Panic("Cannot read file %s", path);
   }
-  s = size;
 
   return res;
 }
 }  // namespace
 
 int main(int argc, char **argv) {
-  size_t size = 0;
-  const char *content = readEntireFile("blocks_literals.eva", size);
+  const char *content = readEntireFile("blocks_literals.eva");
   auto parser = Parser(content);
+  const auto tree = parser.Run();
   return 0;
 }

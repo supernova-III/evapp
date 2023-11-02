@@ -1,10 +1,52 @@
 #pragma once
 #include "tokenizer.h"
-#include <initializer_list>
-#include <stdexcept>
+#include <stdint.h>
 
-template <typename T>
-concept TokenType = std::is_same<T, Token::Type>::value;
+struct ExpressionStatement;
+struct StatementList {
+  struct Node {
+    ExpressionStatement* expression_statement = nullptr;
+    Node* next = nullptr;
+  };
+
+  Node* head = nullptr;
+  Node* tail = nullptr;
+
+  StatementList& Push(ExpressionStatement* new_statement);
+};
+
+struct ExpressionStatement {
+  enum Type : uint8_t {
+    Type_Block,
+    Type_Binary,
+    Type_NumericLiteral,
+    Type_StringLiteral,
+  } type;
+
+  union {
+    struct {
+      ExpressionStatement* left;
+      ExpressionStatement* right;
+      Token op;
+    } binary;
+
+    struct {
+      Token literal;
+    } numeric_literal;
+
+    struct {
+      Token literal;
+    } string_literal;
+
+    struct {
+      Token starter;
+      StatementList list;
+    } block;
+  };
+
+  ExpressionStatement* Duplicate();
+};
+
 // - Building AST
 // - Syntax analysis with meaningful messages
 // - Printing AST
@@ -12,8 +54,17 @@ concept TokenType = std::is_same<T, Token::Type>::value;
 class Parser {
   TokenIterator token_iterator_;
 
-  Token eatToken(Token::Type type);
+  StatementList statementList(Token::Type stopper = Token::Type::End);
+  ExpressionStatement* stringLiteral();
+  ExpressionStatement* numericLiteral();
+  ExpressionStatement* additiveExpression();
+  ExpressionStatement* multiplicativeExpression();
+  ExpressionStatement* expressionStatement();
+
+  Token consumeToken(Token::Type token_type);
 
  public:
-  Parser(const char *input) : token_iterator_(input) {}
+  Parser(const char* input) : token_iterator_(input) {}
+
+  StatementList Run();
 };

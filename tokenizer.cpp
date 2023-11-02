@@ -1,6 +1,6 @@
 #include "tokenizer.h"
+#include "defines.h"
 #include <charconv>
-#include <stdexcept>
 
 #define CASE_DIGIT \
   '0' : case '1':  \
@@ -83,7 +83,7 @@ const Token &TokenIterator::Next() {
           ++cursor_;
         }
         if (input_[cursor_] != c) {
-          throw std::runtime_error("Unexpected end of stream.");
+          Panic("Unexpected EOF");
         }
 
         const size_t len = cursor_ - start - 1;

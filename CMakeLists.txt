@@ -19,6 +19,8 @@ add_executable(${PROJECT_NAME}
   tokenizer.cpp
   parser.h
   parser.cpp
+  defines.h
+  defines.cpp
 )
 
 # target_link_libraries(${PROJECT_NAME} GTest::gtest)
