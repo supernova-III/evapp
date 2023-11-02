@@ -3,12 +3,16 @@
 
 StatementList& StatementList::Push(ExpressionStatement* new_statement) {
   if (head != nullptr) {
-    tail->next = new StatementList::Node{.expression_statement = new_statement,
-                                         .next = nullptr};
+    tail->next = new StatementList::Node{
+        .expression_statement = new_statement,
+        .next = nullptr,
+    };
     tail = tail->next;
   } else {
-    head = new StatementList::Node{.expression_statement = new_statement,
-                                   .next = tail};
+    head = new StatementList::Node{
+        .expression_statement = new_statement,
+        .next = tail,
+    };
     tail = head;
   }
   return *this;
@@ -39,10 +43,7 @@ ExpressionStatement* Parser::assignment() {
 ExpressionStatement* Parser::numericLiteral() {
   return new ExpressionStatement{
       .type = ExpressionStatement::Type_NumericLiteral,
-      .numeric_literal =
-          {
-              .literal = consumeToken(Token::Type::NumericLiteral),
-          },
+      .numeric_literal = {.literal = consumeToken(Token::Type::NumericLiteral)},
   };
 }
 
@@ -90,10 +91,8 @@ ExpressionStatement* Parser::expressionStatement() {
     case Token::Type::StringLiteral:
       return new ExpressionStatement{
           .type = ExpressionStatement::Type_StringLiteral,
-          .string_literal =
-              {
-                  .literal = consumeToken(Token::Type::StringLiteral),
-              },
+          .string_literal = {.literal =
+                                 consumeToken(Token::Type::StringLiteral)},
       };
     case Token::Type::NumericLiteral:
       return additiveExpression();
@@ -103,11 +102,7 @@ ExpressionStatement* Parser::expressionStatement() {
       consumeToken(Token::Type::RightBrace);
       return new ExpressionStatement{
           .type = ExpressionStatement::Type_Block,
-          .block =
-              {
-                  .starter = starter,
-                  .list = statement_list,
-              },
+          .block = {.starter = starter, .list = statement_list},
       };
     } break;
     default:
