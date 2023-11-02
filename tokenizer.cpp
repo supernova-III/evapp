@@ -1,6 +1,7 @@
 #include "tokenizer.h"
 #include "defines.h"
 #include <charconv>
+#include <cstring>
 
 #define CASE_DIGIT \
   '0' : case '1':  \
@@ -30,6 +31,11 @@
   case 'W': case 'X': case 'Y': case 'Z'
 // clang-format on
 
+static bool isAlphaNum(char c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+         (c >= '0' && c <= '9') || c == '_';
+}
+
 const Token &TokenIterator::Next() {
   bool repeat = true;
 
@@ -41,6 +47,10 @@ const Token &TokenIterator::Next() {
     repeat = false;
     char c = input_[cursor_];
     switch (c) {
+      case '=': {
+        current_token_.type = Token::Type::Assign;
+        ++cursor_;
+      } break;
       case '+': {
         current_token_.type = Token::Type::Plus;
         ++cursor_;
@@ -93,6 +103,24 @@ const Token &TokenIterator::Next() {
         current_token_.type = Token::Type::StringLiteral;
         current_token_.string = string;
         ++cursor_;
+      } break;
+      case CASE_ALPHA: {
+        const size_t start = cursor_++;
+        while (isAlphaNum(input_[cursor_])) {
+          ++cursor_;
+        }
+        const size_t len = cursor_ - start;
+        current_token_.type = Token::Type::Identifier;
+        const auto it =
+            identifiers_.find(std::string_view(input_ + start, len));
+        if (it != identifiers_.end()) {
+          current_token_.string = it->data();
+        } else {
+          char *string = new char[len + 1];
+          string[len] = 0;
+          memcpy(string, input_ + start, len);
+          current_token_.string = string;
+        }
       } break;
       case '\n':
       case '\r':

@@ -1,6 +1,8 @@
 #pragma once
 #include <stddef.h>
 #include <string.h>
+#include <unordered_set>
+#include <string_view>
 
 struct Token {
   enum struct Type {
@@ -13,7 +15,9 @@ struct Token {
     Plus,
     Minus,
     Multiply,
-    Divide
+    Divide,
+    Assign,
+    Identifier
   } type;
 
   union {
@@ -44,6 +48,7 @@ class TokenIterator {
   size_t input_length_;
   size_t cursor_ = 0;
   Token current_token_ = {};
+  std::unordered_set<std::string_view> identifiers_ = {};
 
   bool isInput() const noexcept { return cursor_ < input_length_; }
 

@@ -23,6 +23,19 @@ StatementList Parser::statementList(Token::Type stopper) {
   return result;
 }
 
+ExpressionStatement* Parser::assignment() {
+  ExpressionStatement* additive = additiveExpression();
+  if (token_iterator_.Peek().type == Token::Type::Assign) {
+    consumeToken(Token::Type::Assign);
+    ExpressionStatement* right = additiveExpression();
+    return new ExpressionStatement{
+        .type = ExpressionStatement::Type_Assignment,
+        .assignment = {.left = additive, .right = right},
+    };
+  }
+  return additive;
+}
+
 ExpressionStatement* Parser::numericLiteral() {
   return new ExpressionStatement{
       .type = ExpressionStatement::Type_NumericLiteral,
@@ -56,11 +69,11 @@ static bool isMulOp(Token::Type type) {
 }
 
 ExpressionStatement* Parser::multiplicativeExpression() {
-  ExpressionStatement* left = numericLiteral();
+  ExpressionStatement* left = primaryStatement();
   while (isMulOp(token_iterator_.Peek().type)) {
     Token operation = token_iterator_.Peek();
     token_iterator_.Next();
-    ExpressionStatement* right = numericLiteral();
+    ExpressionStatement* right = primaryStatement();
     left->binary.left = left->Duplicate();
     left->binary.right = right;
     left->binary.op = operation;
@@ -72,6 +85,8 @@ ExpressionStatement* Parser::multiplicativeExpression() {
 ExpressionStatement* Parser::expressionStatement() {
   Token token = token_iterator_.Peek();
   switch (token.type) {
+    case Token::Type::Identifier:
+      return assignment();
     case Token::Type::StringLiteral:
       return new ExpressionStatement{
           .type = ExpressionStatement::Type_StringLiteral,
@@ -97,6 +112,23 @@ ExpressionStatement* Parser::expressionStatement() {
     } break;
     default:
       Panic("Unexpected token.");
+  }
+  return nullptr;
+}
+
+ExpressionStatement* Parser::primaryStatement() {
+  switch (token_iterator_.Peek().type) {
+    case Token::Type::NumericLiteral: {
+      return numericLiteral();
+    } break;
+    case Token::Type::Identifier: {
+      return new ExpressionStatement{
+          .type = ExpressionStatement::Type_Identifier,
+          .identifier = {.name = consumeToken(token_iterator_.Peek().type)},
+      };
+    }
+    default:
+      Panic("Unexpected token");
   }
   return nullptr;
 }
@@ -132,6 +164,13 @@ ExpressionStatement* ExpressionStatement::Duplicate() {
       result->binary.left = binary.left;
       result->binary.right = binary.right;
     } break;
+    case Type_Assignment: {
+      result->assignment.left = assignment.left;
+      result->assignment.right = assignment.right;
+    } break;
+    case Type_Identifier: {
+      result->identifier.name = identifier.name;
+    }
   }
   return result;
 }

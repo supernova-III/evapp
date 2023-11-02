@@ -15,12 +15,15 @@ struct StatementList {
   StatementList& Push(ExpressionStatement* new_statement);
 };
 
+// TODO: memory allocator for expression statements based on the expression type
 struct ExpressionStatement {
   enum Type : uint8_t {
     Type_Block,
     Type_Binary,
     Type_NumericLiteral,
     Type_StringLiteral,
+    Type_Assignment,
+    Type_Identifier,
   } type;
 
   union {
@@ -39,9 +42,18 @@ struct ExpressionStatement {
     } string_literal;
 
     struct {
+      Token name;
+    } identifier;
+
+    struct {
       Token starter;
       StatementList list;
     } block;
+
+    struct {
+      ExpressionStatement* left;
+      ExpressionStatement* right;
+    } assignment;
   };
 
   ExpressionStatement* Duplicate();
@@ -55,11 +67,13 @@ class Parser {
   TokenIterator token_iterator_;
 
   StatementList statementList(Token::Type stopper = Token::Type::End);
+  ExpressionStatement* assignment();
   ExpressionStatement* stringLiteral();
   ExpressionStatement* numericLiteral();
   ExpressionStatement* additiveExpression();
   ExpressionStatement* multiplicativeExpression();
   ExpressionStatement* expressionStatement();
+  ExpressionStatement* primaryStatement();
 
   Token consumeToken(Token::Type token_type);
 
