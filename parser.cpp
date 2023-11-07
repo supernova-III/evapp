@@ -1,5 +1,4 @@
 #include "parser.h"
-#include <vcruntime_new_debug.h>
 #include "defines.h"
 #include <charconv>
 #include <cstdint>
