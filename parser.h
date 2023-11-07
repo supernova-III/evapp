@@ -119,9 +119,8 @@ struct ExpressionStatement {
 class Parser {
   TokenIterator token_iterator_;
 
-  ExpressionStatement* statementList(
-      Token starter = {.type = Token::Type_Invalid},
-      Token::Type stopper = Token::Type_End);
+  ExpressionStatement* statementList(Token starter,
+                                     Token::Type stopper = Token::Type_End);
   ExpressionStatement* assignment();
   ExpressionStatement* stringLiteral();
   ExpressionStatement* numericLiteral();

@@ -317,7 +317,7 @@ Token Parser::consumeToken(Token::Type token_type) {
 
 ExpressionStatement* Parser::Run() {
   token_iterator_.Next();
-  return statementList();
+  return statementList(Token{.type = Token::Type_Invalid});
 }
 
 ExpressionStatement* ExpressionStatement::Duplicate() {
