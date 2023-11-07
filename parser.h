@@ -32,9 +32,9 @@ struct Token {
     }
 
     switch (type) {
-      case Type_NumericLiteral:
+      case Token::Type_NumericLiteral:
         return number == other.number;
-      case Type_StringLiteral:
+      case Token::Type_StringLiteral:
         return strcmp(string, other.string) == 0;
       default:
         break;
