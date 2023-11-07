@@ -67,20 +67,6 @@ class TokenIterator {
   const Token& Peek() const { return current_token_; }
 };
 
-struct ExpressionStatement;
-struct StatementList {
-  struct Node {
-    ExpressionStatement* expression_statement = nullptr;
-    Node* next = nullptr;
-  };
-
-  Node* head = nullptr;
-  Node* tail = nullptr;
-
-  StatementList& Push(ExpressionStatement* new_statement);
-};
-
-// TODO: memory allocator for expression statements based on the expression type
 struct ExpressionStatement {
   enum Type : uint8_t {
     Type_Block,
@@ -112,7 +98,7 @@ struct ExpressionStatement {
 
     struct {
       Token starter;
-      StatementList list;
+      ExpressionStatement* head = nullptr;
     } block;
 
     struct {
@@ -120,6 +106,7 @@ struct ExpressionStatement {
       ExpressionStatement* right;
     } assignment;
   };
+  ExpressionStatement* next = nullptr;
 
   ExpressionStatement* Duplicate();
   void Print();
@@ -132,7 +119,9 @@ struct ExpressionStatement {
 class Parser {
   TokenIterator token_iterator_;
 
-  StatementList statementList(Token::Type stopper = Token::Type_End);
+  ExpressionStatement* statementList(
+      Token starter = {.type = Token::Type_Invalid},
+      Token::Type stopper = Token::Type_End);
   ExpressionStatement* assignment();
   ExpressionStatement* stringLiteral();
   ExpressionStatement* numericLiteral();
@@ -146,5 +135,5 @@ class Parser {
  public:
   Parser(const char* input) : token_iterator_(input) {}
 
-  StatementList Run();
+  ExpressionStatement* Run();
 };

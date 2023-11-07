@@ -79,8 +79,6 @@ class ArenaAllocator {
 
 static ArenaAllocator expressionStatementAllocator =
     ArenaAllocator(sizeof(ExpressionStatement), 256);
-static ArenaAllocator statementListNodeAllocator =
-    ArenaAllocator(sizeof(StatementList::Node), 512);
 
 template <typename T>
 T* newObject(T&& prototype, ArenaAllocator& allocator) {
@@ -93,12 +91,6 @@ static ExpressionStatement* newExpressionStatement(
     ExpressionStatement&& prototype) {
   return newObject<ExpressionStatement>(std::move(prototype),
                                         expressionStatementAllocator);
-}
-
-static StatementList::Node* newStatementListNode(
-    StatementList::Node&& prototype) {
-  return newObject<StatementList::Node>(std::move(prototype),
-                                        statementListNodeAllocator);
 }
 
 const Token& TokenIterator::Next() {
@@ -201,30 +193,18 @@ const Token& TokenIterator::Next() {
   return current_token_;
 }
 
-StatementList& StatementList::Push(ExpressionStatement* new_statement) {
-  if (head != nullptr) {
-    tail->next = newStatementListNode({
-        .expression_statement = new_statement,
-        .next = nullptr,
-    });
-    tail = tail->next;
-  } else {
-    head = newStatementListNode({
-        .expression_statement = new_statement,
-        .next = tail,
-    });
-    tail = head;
-  }
-  return *this;
-}
-
-StatementList Parser::statementList(Token::Type stopper) {
-  StatementList result = {};
+ExpressionStatement* Parser::statementList(Token starter, Token::Type stopper) {
+  ExpressionStatement* list = newExpressionStatement({
+      .type = ExpressionStatement::Type_Block,
+      .block = {.starter = starter},
+  });
+  ExpressionStatement* current = list;
   while (token_iterator_.Peek().type != stopper) {
     ExpressionStatement* expression = expressionStatement();
-    result.Push(expression);
+    current->next = expression;
+    current = expression;
   }
-  return result;
+  return list;
 }
 
 ExpressionStatement* Parser::assignment() {
@@ -298,12 +278,10 @@ ExpressionStatement* Parser::expressionStatement() {
       return additiveExpression();
     case Token::Type_LeftBrace: {
       const auto starter = consumeToken(Token::Type_LeftBrace);
-      const auto statement_list = statementList(Token::Type_RightBrace);
+      const auto statement_list =
+          statementList(starter, Token::Type_RightBrace);
       consumeToken(Token::Type_RightBrace);
-      return newExpressionStatement({
-          .type = ExpressionStatement::Type_Block,
-          .block = {.starter = starter, .list = statement_list},
-      });
+      return statement_list;
     } break;
     default:
       Panic("Unexpected token.");
@@ -337,7 +315,7 @@ Token Parser::consumeToken(Token::Type token_type) {
   return token;
 }
 
-StatementList Parser::Run() {
+ExpressionStatement* Parser::Run() {
   token_iterator_.Next();
   return statementList();
 }
