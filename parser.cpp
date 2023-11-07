@@ -82,7 +82,7 @@ static ArenaAllocator expressionStatementAllocator =
 static ArenaAllocator statementListNodeAllocator =
     ArenaAllocator(sizeof(StatementList::Node), 512);
 
-template <typename T, uint32_t n>
+template <typename T>
 T* newObject(T&& prototype, ArenaAllocator& allocator) {
   T* result = static_cast<T*>(allocator.AllocateBlock());
   *result = std::move(prototype);
@@ -91,14 +91,14 @@ T* newObject(T&& prototype, ArenaAllocator& allocator) {
 
 static ExpressionStatement* newExpressionStatement(
     ExpressionStatement&& prototype) {
-  return newObject<ExpressionStatement, 256>(std::move(prototype),
-                                             expressionStatementAllocator);
+  return newObject<ExpressionStatement>(std::move(prototype),
+                                        expressionStatementAllocator);
 }
 
 static StatementList::Node* newStatementListNode(
     StatementList::Node&& prototype) {
-  return newObject<StatementList::Node, 256>(std::move(prototype),
-                                             statementListNodeAllocator);
+  return newObject<StatementList::Node>(std::move(prototype),
+                                        statementListNodeAllocator);
 }
 
 const Token& TokenIterator::Next() {
