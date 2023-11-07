@@ -15,8 +15,6 @@ add_compile_options(-Wno-c99-designator)
 
 add_executable(${PROJECT_NAME} 
   main.cpp
-  tokenizer.h
-  tokenizer.cpp
   parser.h
   parser.cpp
   defines.h
