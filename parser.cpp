@@ -36,6 +36,71 @@ static bool isAlphaNum(char c) {
          (c >= '0' && c <= '9') || c == '_';
 }
 
+class ArenaAllocator {
+  struct ListNode {
+    void* buffer = nullptr;
+    ListNode* prev = nullptr;
+    uint16_t current_n_blocks = 0;
+  };
+
+  ListNode* tail_;
+  // Block size in bytes
+  uint16_t block_size_;
+  // Number of block in single buffer
+  uint16_t n_blocks_;
+
+  inline ListNode* allocateNode() {
+    return new ListNode{
+        .buffer = ::operator new(block_size_ * n_blocks_),
+        .prev = nullptr,
+        .current_n_blocks = 0,
+    };
+  }
+
+ public:
+  ArenaAllocator(uint16_t block_size, uint16_t n_blocks)
+      : tail_{}, block_size_{block_size}, n_blocks_{n_blocks} {
+    tail_ = allocateNode();
+  }
+
+  void* AllocateBlock() noexcept {
+    if (tail_->current_n_blocks == n_blocks_) {
+      ListNode* new_tail = allocateNode();
+      new_tail->prev = tail_;
+      tail_ = new_tail;
+    }
+
+    void* result =
+        (char*)(tail_->buffer) + tail_->current_n_blocks * block_size_;
+    tail_->current_n_blocks += 1;
+    return result;
+  }
+};
+
+static ArenaAllocator expressionStatementAllocator =
+    ArenaAllocator(sizeof(ExpressionStatement), 256);
+static ArenaAllocator statementListNodeAllocator =
+    ArenaAllocator(sizeof(StatementList::Node), 512);
+
+template <typename T, uint32_t n>
+T* newObject(T&& prototype, ArenaAllocator& allocator) {
+  T* result = static_cast<T*>(allocator.AllocateBlock());
+  *result = std::move(prototype);
+  return result;
+}
+
+static ExpressionStatement* newExpressionStatement(
+    ExpressionStatement&& prototype) {
+  return newObject<ExpressionStatement, 256>(std::move(prototype),
+                                             expressionStatementAllocator);
+}
+
+static StatementList::Node* newStatementListNode(
+    StatementList::Node&& prototype) {
+  return newObject<StatementList::Node, 256>(std::move(prototype),
+                                             statementListNodeAllocator);
+}
+
 const Token& TokenIterator::Next() {
   bool repeat = true;
 
@@ -138,16 +203,16 @@ const Token& TokenIterator::Next() {
 
 StatementList& StatementList::Push(ExpressionStatement* new_statement) {
   if (head != nullptr) {
-    tail->next = new StatementList::Node{
+    tail->next = newStatementListNode({
         .expression_statement = new_statement,
         .next = nullptr,
-    };
+    });
     tail = tail->next;
   } else {
-    head = new StatementList::Node{
+    head = newStatementListNode({
         .expression_statement = new_statement,
         .next = tail,
-    };
+    });
     tail = head;
   }
   return *this;
@@ -167,19 +232,19 @@ ExpressionStatement* Parser::assignment() {
   if (token_iterator_.Peek().type == Token::Type_Assign) {
     consumeToken(Token::Type_Assign);
     ExpressionStatement* right = additiveExpression();
-    return new ExpressionStatement{
+    return newExpressionStatement({
         .type = ExpressionStatement::Type_Assignment,
         .assignment = {.left = additive, .right = right},
-    };
+    });
   }
   return additive;
 }
 
 ExpressionStatement* Parser::numericLiteral() {
-  return new ExpressionStatement{
+  return newExpressionStatement({
       .type = ExpressionStatement::Type_NumericLiteral,
       .numeric_literal = {.literal = consumeToken(Token::Type_NumericLiteral)},
-  };
+  });
 }
 
 static bool isAddOp(Token::Type type) {
@@ -224,21 +289,21 @@ ExpressionStatement* Parser::expressionStatement() {
     case Token::Type_Identifier:
       return assignment();
     case Token::Type_StringLiteral:
-      return new ExpressionStatement{
+      return newExpressionStatement({
           .type = ExpressionStatement::Type_StringLiteral,
           .string_literal = {.literal =
                                  consumeToken(Token::Type_StringLiteral)},
-      };
+      });
     case Token::Type_NumericLiteral:
       return additiveExpression();
     case Token::Type_LeftBrace: {
       const auto starter = consumeToken(Token::Type_LeftBrace);
       const auto statement_list = statementList(Token::Type_RightBrace);
       consumeToken(Token::Type_RightBrace);
-      return new ExpressionStatement{
+      return newExpressionStatement({
           .type = ExpressionStatement::Type_Block,
           .block = {.starter = starter, .list = statement_list},
-      };
+      });
     } break;
     default:
       Panic("Unexpected token.");
@@ -252,10 +317,10 @@ ExpressionStatement* Parser::primaryStatement() {
       return numericLiteral();
     } break;
     case Token::Type_Identifier: {
-      return new ExpressionStatement{
+      return newExpressionStatement({
           .type = ExpressionStatement::Type_Identifier,
           .identifier = {.name = consumeToken(token_iterator_.Peek().type)},
-      };
+      });
     }
     default:
       Panic("Unexpected token");
@@ -278,7 +343,7 @@ StatementList Parser::Run() {
 }
 
 ExpressionStatement* ExpressionStatement::Duplicate() {
-  ExpressionStatement* result = new ExpressionStatement{.type = type};
+  ExpressionStatement* result = newExpressionStatement({.type = type});
   switch (type) {
     case Type_StringLiteral: {
       result->string_literal.literal = string_literal.literal;
