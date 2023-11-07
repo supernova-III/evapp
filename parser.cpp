@@ -1,6 +1,8 @@
 #include "parser.h"
+#include <vcruntime_new_debug.h>
 #include "defines.h"
 #include <charconv>
+#include <cstdint>
 #include <cstring>
 
 #define CASE_DIGIT \
@@ -93,6 +95,33 @@ static ExpressionStatement* newExpressionStatement(
                                         expressionStatementAllocator);
 }
 
+class PermanentAllocator {
+  void* memory_;
+  uint32_t size_;
+  uint32_t capacity_;
+
+ public:
+  PermanentAllocator(uint32_t capacity)
+      : capacity_(capacity), size_(), memory_(::operator new(capacity)) {}
+
+  void* Allocate(uint32_t size) {
+    if (size_ + size >= capacity_) {
+      Panic("Permanent allocator failed to allocate another %lu bytes.");
+    }
+    void* result = (char*)memory_ + size_;
+    size_ += size;
+    return result;
+  }
+};
+
+static PermanentAllocator stringAllocator = PermanentAllocator(4 * 1024 * 1024);
+
+char* newString(size_t string_size) {
+  char* result = (char*)stringAllocator.Allocate(string_size + 1);
+  result[string_size] = 0;
+  return result;
+}
+
 const Token& TokenIterator::Next() {
   bool repeat = true;
 
@@ -154,7 +183,7 @@ const Token& TokenIterator::Next() {
         }
 
         const size_t len = cursor_ - start - 1;
-        char* string = new char[len + 1];
+        char* string = newString(len);
         string[len] = 0;
         memcpy(string, input_ + start + 1, len);
         current_token_.type = Token::Type_StringLiteral;
@@ -173,7 +202,7 @@ const Token& TokenIterator::Next() {
         if (it != identifiers_.end()) {
           current_token_.string = it->data();
         } else {
-          char* string = new char[len + 1];
+          char* string = newString(len);
           string[len] = 0;
           memcpy(string, input_ + start, len);
           current_token_.string = string;
