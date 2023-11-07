@@ -6,19 +6,19 @@
 #include <string_view>
 
 struct Token {
-  enum struct Type : uint8_t {
-    Invalid,
-    End,
-    NumericLiteral,
-    StringLiteral,
-    LeftBrace,
-    RightBrace,
-    Plus,
-    Minus,
-    Multiply,
-    Divide,
-    Assign,
-    Identifier
+  enum Type : uint8_t {
+    Type_Invalid,
+    Type_End,
+    Type_NumericLiteral,
+    Type_StringLiteral,
+    Type_LeftBrace,
+    Type_RightBrace,
+    Type_Plus,
+    Type_Minus,
+    Type_Multiply,
+    Type_Divide,
+    Type_Assign,
+    Type_Identifier
   } type;
 
   union {
@@ -32,9 +32,9 @@ struct Token {
     }
 
     switch (type) {
-      case Type::NumericLiteral:
+      case Type_NumericLiteral:
         return number == other.number;
-      case Type::StringLiteral:
+      case Type_StringLiteral:
         return strcmp(string, other.string) == 0;
       default:
         break;
@@ -61,7 +61,7 @@ class TokenIterator {
         current_token_() {}
 
   operator bool() const noexcept {
-    return current_token_.type != Token::Type::End;
+    return current_token_.type != Token::Type_End;
   }
   const Token& Next();
   const Token& Peek() const { return current_token_; }
@@ -132,7 +132,7 @@ struct ExpressionStatement {
 class Parser {
   TokenIterator token_iterator_;
 
-  StatementList statementList(Token::Type stopper = Token::Type::End);
+  StatementList statementList(Token::Type stopper = Token::Type_End);
   ExpressionStatement* assignment();
   ExpressionStatement* stringLiteral();
   ExpressionStatement* numericLiteral();

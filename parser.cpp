@@ -41,38 +41,38 @@ const Token& TokenIterator::Next() {
 
   while (repeat) {
     if (!isInput()) {
-      current_token_.type = Token::Type::End;
+      current_token_.type = Token::Type_End;
       return current_token_;
     }
     repeat = false;
     char c = input_[cursor_];
     switch (c) {
       case '=': {
-        current_token_.type = Token::Type::Assign;
+        current_token_.type = Token::Type_Assign;
         ++cursor_;
       } break;
       case '+': {
-        current_token_.type = Token::Type::Plus;
+        current_token_.type = Token::Type_Plus;
         ++cursor_;
       } break;
       case '-': {
-        current_token_.type = Token::Type::Minus;
+        current_token_.type = Token::Type_Minus;
         ++cursor_;
       } break;
       case '*': {
-        current_token_.type = Token::Type::Multiply;
+        current_token_.type = Token::Type_Multiply;
         ++cursor_;
       } break;
       case '/': {
-        current_token_.type = Token::Type::Divide;
+        current_token_.type = Token::Type_Divide;
         ++cursor_;
       } break;
       case '{': {
-        current_token_.type = Token::Type::LeftBrace;
+        current_token_.type = Token::Type_LeftBrace;
         ++cursor_;
       } break;
       case '}': {
-        current_token_.type = Token::Type::RightBrace;
+        current_token_.type = Token::Type_RightBrace;
         ++cursor_;
       } break;
       case CASE_DIGIT: {
@@ -80,7 +80,7 @@ const Token& TokenIterator::Next() {
         const char* start = input_ + cursor_;
         const auto [end, _] = std::from_chars(start, input_ + input_length_, v);
         current_token_ = {
-            .type = Token::Type::NumericLiteral,
+            .type = Token::Type_NumericLiteral,
             .number = v,
         };
         const size_t len = end - start;
@@ -100,7 +100,7 @@ const Token& TokenIterator::Next() {
         char* string = new char[len + 1];
         string[len] = 0;
         memcpy(string, input_ + start + 1, len);
-        current_token_.type = Token::Type::StringLiteral;
+        current_token_.type = Token::Type_StringLiteral;
         current_token_.string = string;
         ++cursor_;
       } break;
@@ -110,7 +110,7 @@ const Token& TokenIterator::Next() {
           ++cursor_;
         }
         const size_t len = cursor_ - start;
-        current_token_.type = Token::Type::Identifier;
+        current_token_.type = Token::Type_Identifier;
         const auto it =
             identifiers_.find(std::string_view(input_ + start, len));
         if (it != identifiers_.end()) {
@@ -164,8 +164,8 @@ StatementList Parser::statementList(Token::Type stopper) {
 
 ExpressionStatement* Parser::assignment() {
   ExpressionStatement* additive = additiveExpression();
-  if (token_iterator_.Peek().type == Token::Type::Assign) {
-    consumeToken(Token::Type::Assign);
+  if (token_iterator_.Peek().type == Token::Type_Assign) {
+    consumeToken(Token::Type_Assign);
     ExpressionStatement* right = additiveExpression();
     return new ExpressionStatement{
         .type = ExpressionStatement::Type_Assignment,
@@ -178,12 +178,12 @@ ExpressionStatement* Parser::assignment() {
 ExpressionStatement* Parser::numericLiteral() {
   return new ExpressionStatement{
       .type = ExpressionStatement::Type_NumericLiteral,
-      .numeric_literal = {.literal = consumeToken(Token::Type::NumericLiteral)},
+      .numeric_literal = {.literal = consumeToken(Token::Type_NumericLiteral)},
   };
 }
 
 static bool isAddOp(Token::Type type) {
-  return type == Token::Type::Plus || type == Token::Type::Minus;
+  return type == Token::Type_Plus || type == Token::Type_Minus;
 }
 
 ExpressionStatement* Parser::additiveExpression() {
@@ -201,7 +201,7 @@ ExpressionStatement* Parser::additiveExpression() {
 }
 
 static bool isMulOp(Token::Type type) {
-  return type == Token::Type::Divide || type == Token::Type::Multiply;
+  return type == Token::Type_Divide || type == Token::Type_Multiply;
 }
 
 ExpressionStatement* Parser::multiplicativeExpression() {
@@ -221,20 +221,20 @@ ExpressionStatement* Parser::multiplicativeExpression() {
 ExpressionStatement* Parser::expressionStatement() {
   Token token = token_iterator_.Peek();
   switch (token.type) {
-    case Token::Type::Identifier:
+    case Token::Type_Identifier:
       return assignment();
-    case Token::Type::StringLiteral:
+    case Token::Type_StringLiteral:
       return new ExpressionStatement{
           .type = ExpressionStatement::Type_StringLiteral,
           .string_literal = {.literal =
-                                 consumeToken(Token::Type::StringLiteral)},
+                                 consumeToken(Token::Type_StringLiteral)},
       };
-    case Token::Type::NumericLiteral:
+    case Token::Type_NumericLiteral:
       return additiveExpression();
-    case Token::Type::LeftBrace: {
-      const auto starter = consumeToken(Token::Type::LeftBrace);
-      const auto statement_list = statementList(Token::Type::RightBrace);
-      consumeToken(Token::Type::RightBrace);
+    case Token::Type_LeftBrace: {
+      const auto starter = consumeToken(Token::Type_LeftBrace);
+      const auto statement_list = statementList(Token::Type_RightBrace);
+      consumeToken(Token::Type_RightBrace);
       return new ExpressionStatement{
           .type = ExpressionStatement::Type_Block,
           .block = {.starter = starter, .list = statement_list},
@@ -248,10 +248,10 @@ ExpressionStatement* Parser::expressionStatement() {
 
 ExpressionStatement* Parser::primaryStatement() {
   switch (token_iterator_.Peek().type) {
-    case Token::Type::NumericLiteral: {
+    case Token::Type_NumericLiteral: {
       return numericLiteral();
     } break;
-    case Token::Type::Identifier: {
+    case Token::Type_Identifier: {
       return new ExpressionStatement{
           .type = ExpressionStatement::Type_Identifier,
           .identifier = {.name = consumeToken(token_iterator_.Peek().type)},
