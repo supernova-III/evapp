@@ -106,6 +106,7 @@ struct ExpressionStatement {
       ExpressionStatement* right;
     } assignment;
   };
+  // Is only relevant for block.head nodes
   ExpressionStatement* next = nullptr;
 
   ExpressionStatement* Duplicate();
