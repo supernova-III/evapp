@@ -109,7 +109,7 @@ struct ExpressionStatement {
   ExpressionStatement* next = nullptr;
 
   ExpressionStatement* Duplicate();
-  void Print();
+  void DumpJsonToFile(FILE* file);
 };
 
 // - Building AST

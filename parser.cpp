@@ -2,6 +2,7 @@
 #include "defines.h"
 #include <charconv>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 
 #define CASE_DIGIT \
@@ -227,10 +228,12 @@ ExpressionStatement* Parser::statementList(Token starter, Token::Type stopper) {
       .block = {.starter = starter},
   });
   ExpressionStatement* current = list;
+  current->block.head = expressionStatement();
+  ExpressionStatement* node = current->block.head;
   while (token_iterator_.Peek().type != stopper) {
     ExpressionStatement* expression = expressionStatement();
-    current->next = expression;
-    current = expression;
+    node->next = expression;
+    node = expression;
   }
   return list;
 }
@@ -359,6 +362,7 @@ ExpressionStatement* ExpressionStatement::Duplicate() {
     } break;
     case Type_Block: {
       result->block = block;
+      result->next = next;
     } break;
     case Type_Binary: {
       result->binary.op = binary.op;
@@ -371,7 +375,80 @@ ExpressionStatement* ExpressionStatement::Duplicate() {
     } break;
     case Type_Identifier: {
       result->identifier.name = identifier.name;
-    }
+    } break;
   }
   return result;
+}
+
+void ExpressionStatement::DumpJsonToFile(FILE* file) {
+  switch (type) {
+    case Type_Identifier: {
+      fprintf(file, R"("Identifier":{"name":"%s"})", identifier.name.string);
+    } break;
+    case Type_StringLiteral: {
+      fprintf(file, R"("StringLiteral":{"value":"%s"})",
+              string_literal.literal.string);
+    } break;
+    case Type_NumericLiteral: {
+      fprintf(file, R"("NumericLiteral":{"value":%f})",
+              numeric_literal.literal.number);
+    } break;
+    case Type_Binary: {
+      fprintf(file, R"("BinaryOperation":{)");
+      fprintf(file, R"("Left":{)");
+      binary.left->DumpJsonToFile(file);
+      fprintf(file, "},");
+      fprintf(file, R"("Operation":)");
+      switch (binary.op.type) {
+        case Token::Type_Plus:
+          fprintf(file, R"("+")");
+          break;
+        case Token::Type_Minus:
+          fprintf(file, R"("-")");
+          break;
+        case Token::Type_Multiply:
+          fprintf(file, R"("*")");
+          break;
+        case Token::Type_Divide:
+          fprintf(file, R"("/")");
+          break;
+        default:
+          Panic("Invalid AST. Wrong operand in the binary operation.");
+      }
+      fprintf(file, ",");
+      fprintf(file, R"("Right":{)");
+      binary.right->DumpJsonToFile(file);
+      fprintf(file, "}");
+      fprintf(file, "}");
+    } break;
+    case Type_Assignment: {
+      fprintf(file, R"("Assignment":{)");
+      assignment.left->DumpJsonToFile(file);
+      fprintf(file, ",");
+      assignment.right->DumpJsonToFile(file);
+      fprintf(file, "}");
+    } break;
+    case Type_Block: {
+      // FIXME, unbalanced braces here.
+      if (block.starter.type == Token::Type_Invalid) {
+        fprintf(file, R"([)");
+      } else {
+        fprintf(file, R"("Block":{"position":{"line":0,"col":0},"list":[)");
+      }
+      ExpressionStatement* statement = block.head;
+      while (statement != nullptr) {
+        fprintf(file, "{");
+        statement->DumpJsonToFile(file);
+        statement = statement->next;
+        fprintf(file, "}");
+        if (statement != nullptr) {
+          fprintf(file, ",");
+        }
+      }
+      fprintf(file, "]");
+      if (block.starter.type != Token::Type_Invalid) {
+        fprintf(file, "}");
+      }
+    } break;
+  }
 }

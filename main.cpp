@@ -35,5 +35,12 @@ int main(int argc, char **argv) {
   const char *content = readEntireFile("blocks_literals.eva");
   auto parser = Parser(content);
   const auto tree = parser.Run();
+  FILE *file = NULL;
+  const char *path = "block_literals.json";
+  fopen_s(&file, "block_literals.json", "wb");
+  if (file == NULL) {
+    Panic("Cannot open file %s", path);
+  }
+  tree->DumpJsonToFile(file);
   return 0;
 }
