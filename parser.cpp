@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "defines.h"
+#include "memory.h"
 #include <charconv>
 #include <cstdint>
 #include <cstdio>
@@ -38,52 +39,12 @@ static bool isAlphaNum(char c) {
          (c >= '0' && c <= '9') || c == '_';
 }
 
-class ArenaAllocator {
-  struct ListNode {
-    void* buffer = nullptr;
-    ListNode* prev = nullptr;
-    uint16_t current_n_blocks = 0;
-  };
 
-  ListNode* tail_;
-  // Block size in bytes
-  uint16_t block_size_;
-  // Number of block in single buffer
-  uint16_t n_blocks_;
-
-  inline ListNode* allocateNode() {
-    return new ListNode{
-        .buffer = ::operator new(block_size_ * n_blocks_),
-        .prev = nullptr,
-        .current_n_blocks = 0,
-    };
-  }
-
- public:
-  ArenaAllocator(uint16_t block_size, uint16_t n_blocks)
-      : tail_{}, block_size_{block_size}, n_blocks_{n_blocks} {
-    tail_ = allocateNode();
-  }
-
-  void* AllocateBlock() noexcept {
-    if (tail_->current_n_blocks == n_blocks_) {
-      ListNode* new_tail = allocateNode();
-      new_tail->prev = tail_;
-      tail_ = new_tail;
-    }
-
-    void* result =
-        (char*)(tail_->buffer) + tail_->current_n_blocks * block_size_;
-    tail_->current_n_blocks += 1;
-    return result;
-  }
-};
-
-static ArenaAllocator expressionStatementAllocator =
-    ArenaAllocator(sizeof(ExpressionStatement), 256);
+static BlockAllocator expressionStatementAllocator =
+    BlockAllocator(sizeof(ExpressionStatement), 256);
 
 template <typename T>
-T* newObject(T&& prototype, ArenaAllocator& allocator) {
+T* newObject(T&& prototype, BlockAllocator& allocator) {
   T* result = static_cast<T*>(allocator.AllocateBlock());
   *result = std::move(prototype);
   return result;
@@ -93,6 +54,12 @@ static ExpressionStatement* newExpressionStatement(
     ExpressionStatement&& prototype) {
   return newObject<ExpressionStatement>(std::move(prototype),
                                         expressionStatementAllocator);
+}
+
+static BlockAllocator tokenAllocator = BlockAllocator(sizeof(Token), 512);
+
+static Token* newToken(Token&& proto) {
+  return newObject<Token>(std::move(proto), tokenAllocator);
 }
 
 class PermanentAllocator {
@@ -429,7 +396,6 @@ void ExpressionStatement::DumpJsonToFile(FILE* file) {
       fprintf(file, "}");
     } break;
     case Type_Block: {
-      // FIXME, unbalanced braces here.
       if (block.starter.type == Token::Type_Invalid) {
         fprintf(file, R"([)");
       } else {

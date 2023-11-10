@@ -63,6 +63,7 @@ class TokenIterator {
   operator bool() const noexcept {
     return current_token_.type != Token::Type_End;
   }
+
   const Token& Next();
   const Token& Peek() const { return current_token_; }
 };
