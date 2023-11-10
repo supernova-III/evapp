@@ -17,6 +17,8 @@ add_executable(${PROJECT_NAME}
   main.cpp
   parser.h
   parser.cpp
+  execution.h
+  execution.cpp
   defines.h
   defines.cpp
 )
